@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMG CALC</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+:root{
+  --bg:#0d0d0d;--surface:#141414;--s2:#1a1a1a;--border:#2a2a2a;
+  --y:#f5c400;--yd:#b38f00;--yb:rgba(245,196,0,0.07);
+  --red:#c0392b;--green:#27ae60;--blue:#2980b9;
+  --text:#e8e8e8;--muted:#666;
+  --mono:'Share Tech Mono',monospace;--sans:'Rajdhani',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;min-height:100vh;}
+
+/* inputs */
+input[type=text],input[type=number],textarea,select{
+  background:var(--bg);border:1px solid var(--border);color:var(--text);
+  font-family:var(--mono);font-size:13px;padding:7px 10px;width:100%;outline:none;
+  transition:border-color .15s;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--y);}
+textarea{resize:vertical;min-height:54px;}
+select option{background:var(--bg);}
+.cb-row{display:flex;align-items:center;gap:8px;margin-top:4px;}
+.cb-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--y);cursor:pointer;}
+.cb-row label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:1px;cursor:pointer;margin:0;}
+
+/* buttons */
+.btn{font-family:var(--mono);font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:9px 18px;border:none;cursor:pointer;transition:opacity .15s;}
+.btn:hover{opacity:.8;}.btn:active{opacity:.6;}
+.btn-y  {background:var(--y);color:#000;font-weight:bold;}
+.btn-ys {background:transparent;color:var(--y);border:1px solid var(--y);}
+.btn-r  {background:transparent;color:var(--red);border:1px solid var(--red);}
+.btn-g  {background:var(--green);color:#fff;font-weight:bold;}
+.btn-gh {background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-bl {background:transparent;color:#5dade2;border:1px solid #5dade2;}
+.btn-sm{font-size:11px;padding:5px 10px;letter-spacing:1px;}
+.btn-xs{font-size:10px;padding:3px 8px;letter-spacing:1px;}
+
+/* ── SETUP ── */
+#setup{display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px;gap:20px;min-height:100vh;}
+.setup-pair{display:flex;gap:20px;flex-wrap:wrap;width:100%;max-width:1100px;justify-content:center;}
+.sbox{background:var(--surface);border:1px solid var(--border);padding:28px 32px;width:100%;max-width:520px;}
+.sbox.ytop{border-top:3px solid var(--y);}
+.sbox.btop{border-top:3px solid #5dade2;}
+.sbox h1{font-family:var(--mono);font-size:20px;color:var(--y);letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;}
+.sbox h2{font-family:var(--mono);font-size:13px;color:#5dade2;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;}
+.sbox .sub{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:24px;}
+.frow{margin-bottom:14px;}
+.frow>label,.flbl{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.fhint{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:1px;}
+.finputs{display:flex;flex-direction:column;gap:7px;}
+.srow{display:flex;gap:8px;align-items:center;}
+.srow input{flex:1;}
+
+/* preset library */
+.lib-add{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.lib-add input[placeholder="#ID"]{width:60px;flex-shrink:0;}
+.lib-add input[placeholder="Name…"]{flex:1;min-width:80px;}
+.lib-add input[placeholder="Base Stat"]{width:90px;flex-shrink:0;}
+.pc-list{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.pc-card{background:var(--bg);border:1px solid var(--border);padding:10px 12px;}
+.pc-head{display:flex;flex-direction:column;gap:6px;}
+.pc-meta{display:flex;flex-direction:column;gap:2px;}
+.pc-id{font-family:var(--mono);font-size:10px;color:var(--yd);letter-spacing:2px;}
+.pc-nm{font-family:var(--mono);font-size:13px;color:var(--text);word-break:break-word;}
+.pc-nm-edit{display:none;font-family:var(--mono);font-size:13px;width:100%;}
+.pc-nm-edit.on{display:block;}
+.pc-desc{font-family:var(--mono);font-size:10px;color:var(--muted);font-style:italic;margin-top:2px;white-space:pre-wrap;word-break:break-word;}
+.pc-acts{display:flex;gap:4px;flex-wrap:wrap;}
+.pc-abs{margin-top:8px;border-top:1px solid var(--border);padding-top:8px;display:flex;flex-direction:column;gap:6px;}
+.ab-row{display:flex;flex-direction:column;gap:5px;}
+.ab-info{display:flex;flex-direction:column;gap:2px;}
+.ab-name{font-family:var(--mono);font-size:12px;color:var(--y);word-break:break-word;}
+.ab-meta{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-word;}
+.ab-acts{display:flex;gap:4px;}
+.pc-no-ab{font-family:var(--mono);font-size:11px;color:var(--muted);font-style:italic;}
+
+.crit-tag{font-family:var(--mono);font-size:10px;color:#e74c3c;border:1px solid #e74c3c;padding:1px 5px;margin-left:4px;letter-spacing:1px;}
+.crit-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;}
+.crit-stat{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:8px;}
+.crit-stat span{color:var(--y);}
+/* ── ENEMY EDITOR ── */
+.ec{cursor:pointer;transition:border-color .15s;}
+.ec:not(.dead):hover{border-color:#5dade2;}
+.ec.stunned{border-color:#f39c12;border-width:2px;}
+.stun-bar-wrap{height:4px;background:var(--border);margin-top:3px;}
+.stun-bar{height:100%;background:#f39c12;transition:width .3s;}
+.stun-tag{font-family:var(--mono);font-size:9px;color:#f39c12;letter-spacing:2px;margin-top:2px;}
+.res-tag{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:1px;}
+
+/* ── VARIANTS ── */
+.var-list{display:flex;flex-direction:column;gap:4px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);}
+.var-row{display:flex;flex-direction:column;gap:4px;background:var(--bg);border:1px solid var(--border);border-left:2px solid #8e44ad;padding:7px 10px;}
+.var-tag{font-family:var(--mono);font-size:9px;color:#8e44ad;letter-spacing:2px;text-transform:uppercase;}
+.var-nm{font-family:var(--mono);font-size:12px;color:var(--text);}
+.var-meta{font-family:var(--mono);font-size:11px;color:var(--muted);}
+.var-acts{display:flex;gap:4px;}
+/* PP cycle button */
+.cycle-btn{font-family:var(--mono);font-size:11px;padding:2px 7px;background:var(--bg);border:1px solid #8e44ad;color:#8e44ad;cursor:pointer;letter-spacing:1px;}
+.cycle-btn:hover{border-color:#b86ecd;color:#b86ecd;}
+.var-badge{font-family:var(--mono);font-size:10px;color:#8e44ad;border:1px solid #8e44ad;padding:1px 5px;margin-left:4px;letter-spacing:1px;}
+
+/* ── NOTES ── */
+#note-toggle{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:400;background:var(--surface);border:1px solid var(--border);border-left:none;color:var(--muted);font-family:var(--mono);font-size:13px;padding:12px 6px;cursor:pointer;writing-mode:vertical-rl;letter-spacing:2px;transition:color .15s,border-color .15s;}
+#note-toggle:hover{color:var(--y);border-color:var(--yd);}
+#note-panel{position:fixed;left:0;top:0;bottom:0;width:320px;background:var(--surface);border-right:1px solid var(--border);z-index:410;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .2s ease;}
+#note-panel.open{transform:translateX(0);}
+.note-panel-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
+.note-panel-title{font-family:var(--mono);font-size:12px;color:var(--y);letter-spacing:3px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;}
+.note-sel-row{display:flex;gap:6px;align-items:center;}
+.note-sel-row select{flex:1;}
+.note-body{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:12px 16px;gap:8px;}
+.note-name-row{display:flex;gap:6px;align-items:center;}
+.note-name-row input{flex:1;font-family:var(--mono);font-size:12px;}
+#note-textarea{flex:1;resize:none;font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px;outline:none;line-height:1.6;white-space:pre-wrap;}
+#note-textarea:focus{border-color:var(--y);}
+#note-textarea[readonly]{color:var(--muted);cursor:default;}
+.note-add-row{display:flex;gap:6px;align-items:center;padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0;}
+.note-add-row input{flex:1;font-family:var(--mono);font-size:12px;}
+
+/* ── APP / BATTLE SCREENS ── */
+#app,#battle{display:none;flex-direction:column;height:100vh;overflow:hidden;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 18px;flex-shrink:0;}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;}
+.screen-title{font-family:var(--mono);font-size:13px;color:var(--y);letter-spacing:3px;}
+.screen-title.blue{color:#5dade2;}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:10px;}
+.sc{background:var(--s2);padding:9px 12px;text-align:center;}
+.sc .l{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+.sc .v{font-family:var(--mono);font-size:17px;color:var(--y);font-weight:bold;}
+#csg,#bcsg{display:flex;gap:8px;flex-wrap:wrap;}
+.csc{background:var(--bg);border:1px solid var(--border);padding:7px 10px;flex:1;min-width:100px;}
+.csc.preset{cursor:pointer;border-color:var(--yd);}
+.csc.preset:hover{border-color:var(--y);}
+.csc .cn{font-family:var(--mono);font-size:10px;color:var(--yd);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;border-bottom:1px solid var(--border);padding-bottom:3px;display:flex;align-items:center;gap:5px;}
+.pbadge{font-family:var(--mono);font-size:9px;color:var(--y);border:1px solid var(--yd);padding:1px 4px;}
+.cr{display:flex;justify-content:space-between;margin-bottom:1px;}
+.cr span{font-family:var(--mono);font-size:11px;color:var(--muted);}
+.cr strong{font-family:var(--mono);font-size:11px;color:var(--text);}
+.tap-hint{font-family:var(--mono);font-size:9px;color:var(--yd);margin-top:4px;letter-spacing:1px;}
+.res-bar{border-top:1px solid var(--border);margin-top:5px;padding-top:5px;display:flex;flex-direction:column;gap:2px;}
+.res-row{display:flex;justify-content:space-between;}
+.res-nm{font-family:var(--mono);font-size:10px;color:var(--muted);}
+.res-vl{font-family:var(--mono);font-size:10px;color:var(--y);}
+
+#fx-bar,#bfx-bar{background:var(--bg);border-top:1px solid var(--border);padding:6px 18px;display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0;min-height:32px;align-items:center;}
+.fx-lbl{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+.fx-chip{font-family:var(--mono);font-size:11px;padding:2px 7px;border:1px solid var(--yd);color:var(--y);background:var(--yb);}
+
+#log-area,#battle-log{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:7px;}
+#log-area::-webkit-scrollbar,#battle-log::-webkit-scrollbar{width:4px;}
+#log-area::-webkit-scrollbar-thumb,#battle-log::-webkit-scrollbar-thumb{background:var(--border);}
+.empty-log{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;margin-top:40px;letter-spacing:2px;}
+.botbar{background:var(--surface);border-top:1px solid var(--border);padding:10px 18px;display:flex;gap:10px;align-items:center;flex-shrink:0;}
+
+/* battle top */
+#battle-top{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 18px;flex-shrink:0;}
+.btop-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;}
+.timer{font-family:var(--mono);font-size:20px;font-weight:bold;color:var(--y);}
+.timer.urgent{color:var(--red);}
+#enemy-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.ec{background:var(--bg);border:1px solid var(--border);padding:7px 10px;flex:1;min-width:100px;}
+.ec.dead{opacity:.4;border-style:dashed;}
+.ec .en{font-family:var(--mono);font-size:10px;color:#5dade2;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.ec .ehp{font-family:var(--mono);font-size:12px;color:var(--text);margin-bottom:3px;}
+.hpw{height:5px;background:var(--border);}
+.hpb{height:100%;background:var(--green);}
+.hpb.mid{background:#e67e22;}.hpb.low{background:var(--red);}
+.dead-lbl{font-family:var(--mono);font-size:9px;color:var(--red);letter-spacing:2px;margin-top:2px;}
+#battle-bottom{background:var(--surface);border-top:1px solid var(--border);padding:10px 18px;flex-shrink:0;}
+#bcsg{margin-bottom:8px;}
+
+/* log entries */
+.le{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--yd);padding:11px 13px;}
+.le.editing{border-left-color:var(--y);background:var(--s2);}
+.le.ble{border-left-color:#5dade2;}
+.le-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
+.le-l{display:flex;flex-direction:column;gap:1px;}
+.le-char{font-family:var(--mono);font-size:10px;color:var(--y);letter-spacing:2px;text-transform:uppercase;}
+.le-name{font-family:var(--mono);font-size:13px;color:var(--text);}
+.le-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:5px;}
+.mp{font-family:var(--mono);font-size:11px;color:var(--muted);}
+.mp span{color:var(--text);}
+.mp.dmg span{color:var(--y);font-size:13px;font-weight:bold;}
+.le-desc{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:4px;font-style:italic;white-space:pre-wrap;word-break:break-word;}
+.le-dmt{font-family:var(--mono);font-size:11px;margin-bottom:4px;}
+.dmt-d{color:#e67e22;}.dmt-dot{color:#8e44ad;}
+.le-eff{font-family:var(--mono);font-size:11px;color:var(--yd);margin-bottom:4px;}
+.le-tgt{font-family:var(--mono);font-size:10px;color:#5dade2;margin-bottom:4px;}
+.le-acts{display:flex;gap:5px;flex-wrap:wrap;}
+.cdb{font-family:var(--mono);font-size:10px;padding:2px 7px;letter-spacing:1px;}
+.cdb.rdy{color:var(--green);border:1px solid var(--green);}
+.cdb.cool{color:var(--red);border:1px solid var(--red);}
+.ef{margin-top:10px;border-top:1px solid var(--border);padding-top:10px;display:none;}
+.ef.open{display:block;}
+.eg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.eg .full{grid-column:1/-1;}
+.ef label{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.ea{display:flex;gap:7px;}
+
+/* dmg type tabs */
+.dtt{display:flex;margin-bottom:10px;}
+.dt{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;flex:1;text-align:center;}
+.dt:not(:last-child){border-right:none;}
+.dt.on{background:var(--yb);color:var(--y);border-color:var(--yd);}
+.dtf{display:none;}.dtf.on{display:block;}
+.adv-btn{font-family:var(--mono);font-size:10px;color:var(--yd);background:none;border:none;cursor:pointer;padding:0;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.adv-btn:hover{color:var(--y);}
+.adv-fields{display:none;}.adv-fields.on{display:block;}
+.adv-prev{font-family:var(--mono);font-size:11px;color:var(--y);margin-top:4px;min-height:16px;}
+.adv-note{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:8px;}
+
+/* modals */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);align-items:center;justify-content:center;padding:20px;}
+.ov.on{display:flex;}
+#ov-log{z-index:150;}
+#ov-ae{z-index:200;}
+#ov-epc{z-index:250;}
+#ov-target{z-index:300;}
+#ov-alert{z-index:300;}
+#ov-rw{z-index:300;}
+#ov-reset{z-index:300;}
+#ov-breset{z-index:300;}
+#ov-cf{z-index:300;}
+#ov-result{z-index:300;}
+#pp{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:120;align-items:flex-end;justify-content:center;}
+#pp.on{display:flex;}
+.mbox{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--y);padding:26px 30px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.mbox::-webkit-scrollbar{width:4px;}
+.mbox::-webkit-scrollbar-thumb{background:var(--border);}
+.mbox h2{font-family:var(--mono);font-size:13px;color:var(--y);letter-spacing:3px;text-transform:uppercase;margin-bottom:18px;}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.mg .full{grid-column:1/-1;}
+.mbox label{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.ma{display:flex;gap:8px;margin-top:16px;}
+.sdiv{border:none;border-top:1px solid var(--border);margin:14px 0 10px;}
+.slbl{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.warn-box{background:var(--surface);border:1px solid var(--red);border-top:3px solid var(--red);padding:24px 28px;max-width:400px;width:100%;}
+.warn-box.yw{border-color:var(--y);border-top-color:var(--y);}
+.warn-box h3{font-family:var(--mono);font-size:13px;color:var(--red);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.warn-box.yw h3{color:var(--y);}
+.warn-box p{font-family:var(--mono);font-size:12px;color:var(--text);margin-bottom:18px;line-height:1.7;white-space:pre-line;}
+.warn-acts{display:flex;gap:8px;flex-wrap:wrap;}
+.result-box{background:var(--surface);border:1px solid var(--y);border-top:3px solid var(--y);padding:28px 32px;max-width:380px;width:100%;}
+.result-box.lose{border-color:var(--red);border-top-color:var(--red);}
+.result-box h3{font-family:var(--mono);font-size:14px;color:var(--y);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;}
+.result-box.lose h3{color:var(--red);}
+.result-box p{font-family:var(--mono);font-size:12px;color:var(--text);margin-bottom:20px;line-height:1.7;white-space:pre-line;}
+
+/* target picker */
+.pp-box{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--y);padding:20px 24px;width:100%;max-width:560px;max-height:75vh;display:flex;flex-direction:column;}
+.pp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;}
+.pp-head h3{font-family:var(--mono);font-size:13px;color:var(--y);letter-spacing:3px;text-transform:uppercase;}
+.pp-list{overflow-y:auto;display:flex;flex-direction:column;gap:7px;flex:1;}
+.pp-row{background:var(--bg);border:1px solid var(--border);padding:9px 11px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.pp-ab-nm{font-family:var(--mono);font-size:13px;color:var(--text);}
+.pp-ab-meta{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-word;}
+.pp-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.pp-no-ab{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;padding:18px;font-style:italic;}
+.pp-res-hdr{background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--yd);padding:9px 12px;margin-bottom:7px;}
+.pp-res-title{font-family:var(--mono);font-size:10px;color:var(--yd);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.pp-res-item{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;}
+.pp-res-lbl{font-family:var(--mono);font-size:11px;color:var(--muted);flex:1;}
+.pp-res-cnt{font-family:var(--mono);font-size:13px;color:var(--y);min-width:40px;}
+.pp-res-btns{display:flex;gap:4px;align-items:center;}
+.pp-res-btns button{font-family:var(--mono);font-size:13px;width:26px;height:26px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;}
+.pp-res-btns button:hover{border-color:var(--y);color:var(--y);}
+.pp-res-btns input{width:44px;text-align:center;font-family:var(--mono);font-size:12px;padding:3px 5px;}
+.tgt-list{display:flex;flex-direction:column;gap:8px;}
+.tgt-btn{background:var(--bg);border:1px solid var(--border);padding:12px 16px;cursor:pointer;text-align:left;width:100%;transition:border-color .15s;}
+.tgt-btn:hover{border-color:var(--y);}
+.tgt-nm{font-family:var(--mono);font-size:13px;color:var(--text);}
+.tgt-hp{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px;}
+/* ability editor resource rows */
+.ab-res-section{display:none;}
+.ab-res-section.on{display:block;}
+.ab-res-item{display:grid;grid-template-columns:1fr 80px 110px;gap:7px;align-items:center;margin-bottom:7px;}
+.ab-res-lbl{font-family:var(--mono);font-size:11px;color:var(--text);}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup">
+<div class="setup-pair">
+<!-- DMG CALC BOX -->
+<div class="sbox ytop">
+  <h1>DMG CALC</h1>
+  <div class="sub">// damage log &amp; tracker</div>
+  <div class="frow">
+    <label>Characters</label>
+    <div class="srow" style="margin-bottom:6px">
+      <input type="number" id="cc" min="1" max="10" value="1" style="width:60px">
+      <button class="btn btn-ys btn-sm" onclick="setCC()">SET</button>
+    </div>
+    <div class="finputs" id="cc-inputs"><input type="text" placeholder="Name or #ID"></div>
+    <div class="fhint">// plain name = regular · #ID = load preset</div>
+  </div>
+  <button class="btn btn-y" style="width:100%;margin-top:6px" onclick="startCalc()">START SESSION</button>
+</div>
+<!-- BATTLE BOX -->
+<div class="sbox btop">
+  <h2>BATTLE SESSION</h2>
+  <div class="frow">
+    <label>Characters</label>
+    <div class="srow" style="margin-bottom:6px">
+      <input type="number" id="bc" min="1" max="10" value="1" style="width:60px">
+      <button class="btn btn-bl btn-sm" onclick="setBC()">SET</button>
+    </div>
+    <div class="finputs" id="bc-inputs"><input type="text" placeholder="Name or #ID"></div>
+  </div>
+  <div class="frow">
+    <label>Enemies</label>
+    <div class="srow" style="margin-bottom:6px">
+      <input type="number" id="ec" min="1" max="20" value="1" style="width:60px">
+      <button class="btn btn-bl btn-sm" onclick="setEC()">SET</button>
+    </div>
+    <div class="finputs" id="ec-inputs">
+      <div class="srow"><input type="text" placeholder="Enemy name" style="flex:1"><input type="number" placeholder="HP" style="width:80px;flex-shrink:0" value="100"></div>
+    </div>
+  </div>
+  <div class="frow">
+    <label>Time Limit (s) <span style="color:var(--muted)">— cast-time based, leave empty = ∞</span></label>
+    <input type="number" id="bc-timer" min="1" placeholder="e.g. 60">
+  </div>
+  <button class="btn btn-bl" style="width:100%;margin-top:6px;color:#fff;background:#2980b9;border:none;font-weight:bold" onclick="startBattle()">START BATTLE</button>
+</div>
+</div>
+
+<!-- PRESET LIBRARY -->
+<div class="sbox ytop" style="max-width:1100px;width:100%">
+  <h2 style="color:var(--yd)">PRESET CHARACTERS</h2>
+  <div class="lib-add">
+    <input type="text" id="np-id" placeholder="#ID" style="width:60px;flex-shrink:0">
+    <input type="text" id="np-name" placeholder="Name…" style="flex:1;min-width:80px">
+    <input type="number" id="np-stat" placeholder="Base Stat" min="0" style="width:90px;flex-shrink:0">
+    <button class="btn btn-ys btn-sm" onclick="addPC()">+ ADD</button>
+  </div>
+  <input type="text" id="np-desc" placeholder="Description (optional)" style="width:100%;margin-bottom:10px">
+  <div class="pc-list" id="pc-list"><div style="font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;padding:10px">// no preset characters yet</div></div>
+</div>
+</div>
+
+<!-- DMG CALC APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="screen-title">// DMG CALC</div>
+      <button class="btn btn-r btn-sm" onclick="openOv('ov-reset')">RESET</button>
+    </div>
+    <div class="stats-grid">
+      <div class="sc"><div class="l">Time</div><div class="v" id="s-time">0.00s</div></div>
+      <div class="sc"><div class="l">DMG</div><div class="v" id="s-dmg">0</div></div>
+      <div class="sc"><div class="l">DPS</div><div class="v" id="s-dps">0.00</div></div>
+    </div>
+    <div id="csg"></div>
+  </div>
+  <div id="fx-bar"><span class="fx-lbl">EFFECTS:</span><span id="fx-list" style="font-family:var(--mono);font-size:11px;color:var(--muted)">none</span></div>
+  <div id="log-area"><div class="empty-log">// no abilities logged yet</div></div>
+  <div class="botbar"><button class="btn btn-y" onclick="openLogModal('add')">+ LOG ABILITY</button></div>
+</div>
+
+<!-- BATTLE APP -->
+<div id="battle">
+  <div id="battle-top">
+    <div class="btop-row">
+      <div class="screen-title blue">// BATTLE</div>
+      <div class="timer" id="btimer">∞</div>
+      <button class="btn btn-r btn-sm" onclick="openOv('ov-breset')">END BATTLE</button>
+    </div>
+    <div id="enemy-grid"></div>
+    <div id="bfx-bar"><span class="fx-lbl">EFFECTS:</span><span id="bfx-list" style="font-family:var(--mono);font-size:11px;color:var(--muted)">none</span></div>
+  </div>
+  <div id="battle-log"><div class="empty-log">// no actions yet</div></div>
+  <div id="battle-bottom">
+    <div id="bcsg" style="margin-bottom:8px"></div>
+    <div class="botbar" style="border:none;padding:0"><button class="btn btn-bl" style="color:#fff;background:#2980b9;border:none;font-weight:bold" onclick="openLogModal('battle-add')">+ LOG ABILITY</button></div>
+  </div>
+</div>
+
+<!-- LOG MODAL -->
+<div class="ov" id="ov-log">
+<div class="mbox">
+  <h2 id="lm-title">LOG ABILITY</h2>
+  <div class="mg">
+    <div class="full"><label>Character</label><select id="lm-char" onchange="refreshAdvPrev()"></select></div>
+    <div class="full"><label>Ability Name</label><input type="text" id="lm-name" placeholder="e.g. Shot"></div>
+    <div class="full"><label>Description</label><textarea id="lm-desc"></textarea></div>
+    <div><label>Cast Time (s)</label><input type="number" id="lm-cast" min="0" step="0.1" placeholder="0"></div>
+    <div><label>Cooldown (s)</label><input type="number" id="lm-cd" min="0" step="0.1" placeholder="0"></div>
+    <div class="full"><label>Hit Type</label><select id="lm-hit"><option value="single">Single Target</option><option value="multi">Multi Hit (all enemies)</option></select></div>
+  </div>
+  <hr class="sdiv"><div class="slbl">Damage Type</div>
+  <div class="dtt" id="lm-tabs">
+    <div class="dt on" data-t="n" onclick="setTab('lm','n')">NORMAL</div>
+    <div class="dt" data-t="d" onclick="setTab('lm','d')">DELAYED</div>
+    <div class="dt" data-t="t" onclick="setTab('lm','t')">DOT</div>
+  </div>
+  <div class="dtf on" id="lm-dtf-n">
+    <div class="mg"><div><label>Flat Damage <span style="color:var(--muted)">(empty=advanced)</span></label><input type="number" id="lm-flat-n" min="0" placeholder="optional"></div></div>
+    <button class="adv-btn" id="lm-advbtn-n" onclick="toggleAdv('lm','n')">▶ ADVANCED DMG</button>
+    <div class="adv-fields" id="lm-adv-n"><div class="adv-note">Stat × (Mult/100) × (1+B1/100) × (1+B2/100)</div>
+    <div class="mg">
+      <div><label>Stat (bonus)</label><input type="number" id="lm-stat-n" min="0" placeholder="0" oninput="updAdv('lm','n')"></div>
+      <div><label>Multiplier %</label><input type="number" id="lm-mult-n" min="0" placeholder="e.g. 160" oninput="updAdv('lm','n')"></div>
+      <div><label>Buff 1 %</label><input type="number" id="lm-b1-n" min="0" placeholder="0" oninput="updAdv('lm','n')"></div>
+      <div><label>Buff 2 %</label><input type="number" id="lm-b2-n" min="0" placeholder="0" oninput="updAdv('lm','n')"></div>
+      <div class="full"><div class="adv-prev" id="lm-prev-n"></div></div>
+    </div></div>
+  </div>
+  <div class="dtf" id="lm-dtf-d">
+    <div class="mg">
+      <div><label>Flat Damage <span style="color:var(--muted)">(empty=advanced)</span></label><input type="number" id="lm-flat-d" min="0" placeholder="optional"></div>
+      <div><label>Delay (s)</label><input type="number" id="lm-delay" min="0" step="0.1" placeholder="e.g. 3"></div>
+    </div>
+    <button class="adv-btn" id="lm-advbtn-d" onclick="toggleAdv('lm','d')">▶ ADVANCED DMG</button>
+    <div class="adv-fields" id="lm-adv-d"><div class="adv-note">Stat × (Mult/100) × (1+B1/100) × (1+B2/100)</div>
+    <div class="mg">
+      <div><label>Stat (bonus)</label><input type="number" id="lm-stat-d" min="0" placeholder="0" oninput="updAdv('lm','d')"></div>
+      <div><label>Multiplier %</label><input type="number" id="lm-mult-d" min="0" placeholder="e.g. 160" oninput="updAdv('lm','d')"></div>
+      <div><label>Buff 1 %</label><input type="number" id="lm-b1-d" min="0" placeholder="0" oninput="updAdv('lm','d')"></div>
+      <div><label>Buff 2 %</label><input type="number" id="lm-b2-d" min="0" placeholder="0" oninput="updAdv('lm','d')"></div>
+      <div class="full"><div class="adv-prev" id="lm-prev-d"></div></div>
+    </div></div>
+  </div>
+  <div class="dtf" id="lm-dtf-t">
+    <div class="mg">
+      <div><label>Flat/tick <span style="color:var(--muted)">(empty=advanced)</span></label><input type="number" id="lm-flat-t" min="0" placeholder="optional"></div>
+      <div><label>Tick every (s)</label><input type="number" id="lm-ticki" min="0.1" step="0.1" placeholder="e.g. 2" oninput="updDotPrev('lm')"></div>
+      <div><label>Duration (s)</label><input type="number" id="lm-tickd" min="0" step="0.1" placeholder="e.g. 4" oninput="updDotPrev('lm')"></div>
+      <div style="display:flex;align-items:flex-end"><div id="lm-dot-prev" style="font-family:var(--mono);font-size:11px;color:var(--muted);padding-bottom:8px"></div></div>
+    </div>
+    <button class="adv-btn" id="lm-advbtn-t" onclick="toggleAdv('lm','t')">▶ ADVANCED DMG (per tick)</button>
+    <div class="adv-fields" id="lm-adv-t"><div class="adv-note">Stat × (Mult/100) × (1+B1/100) × (1+B2/100) per tick</div>
+    <div class="mg">
+      <div><label>Stat (bonus)</label><input type="number" id="lm-stat-t" min="0" placeholder="0" oninput="updAdv('lm','t')"></div>
+      <div><label>Multiplier %</label><input type="number" id="lm-mult-t" min="0" placeholder="e.g. 160" oninput="updAdv('lm','t')"></div>
+      <div><label>Buff 1 %</label><input type="number" id="lm-b1-t" min="0" placeholder="0" oninput="updAdv('lm','t')"></div>
+      <div><label>Buff 2 %</label><input type="number" id="lm-b2-t" min="0" placeholder="0" oninput="updAdv('lm','t')"></div>
+      <div class="full"><div class="adv-prev" id="lm-prev-t"></div></div>
+    </div></div>
+  </div>
+  <hr class="sdiv"><div class="slbl">Effect (optional)</div>
+  <div class="mg">
+    <div><label>Effect Name</label><input type="text" id="lm-effn" placeholder="e.g. Bleed"></div>
+    <div><label>Effect Duration (s)</label><input type="number" id="lm-effd" min="0" step="0.1" placeholder="0"></div>
+    <div class="full"><div class="cb-row"><input type="checkbox" id="lm-stacks"><label for="lm-stacks">Effect stacks on reuse (unchecked = refresh)</label></div></div>
+  </div>
+  <hr class="sdiv"><div class="slbl">Stun Damage (optional)</div>
+  <div class="mg">
+    <div><label>Stun Meter Damage</label><input type="number" id="lm-stundmg" min="0" placeholder="0"></div>
+  </div>
+  <div class="ma">
+    <button class="btn btn-y" id="lm-ok" onclick="confirmLog()">CONFIRM</button>
+    <button class="btn btn-gh" onclick="closeOv('ov-log')">CANCEL</button>
+  </div>
+</div>
+</div>
+
+<!-- ABILITY EDITOR MODAL -->
+<div class="ov" id="ov-ae">
+<div class="mbox">
+  <h2 id="ae-title">ADD ABILITY</h2>
+  <div id="ae-stat-hint" style="display:none;font-family:var(--mono);font-size:11px;color:var(--yd);margin-bottom:14px">CHAR BASE STAT: <span id="ae-stat-val">0</span> — Stat field = bonus on top</div>
+  <div id="ae-var-row" style="display:none;margin-bottom:12px">
+    <div class="flbl">Variant Tag <span style="color:var(--muted)">(e.g. Hold, Enhanced, Charged)</span></div>
+    <input type="text" id="ae-vartag" placeholder="e.g. Hold">
+  </div>
+  <div class="mg">
+    <div class="full"><label>Ability Name</label><input type="text" id="ae-name" placeholder="e.g. Fireball"></div>
+    <div class="full"><label>Description</label><textarea id="ae-desc"></textarea></div>
+    <div><label>Cast Time (s)</label><input type="number" id="ae-cast" min="0" step="0.1" placeholder="0"></div>
+    <div><label>Cooldown (s)</label><input type="number" id="ae-cd" min="0" step="0.1" placeholder="0"></div>
+    <div class="full"><label>Hit Type</label><select id="ae-hit"><option value="single">Single Target</option><option value="multi">Multi Hit (all enemies)</option></select></div>
+  </div>
+  <hr class="sdiv"><div class="slbl">Damage Type</div>
+  <div class="dtt" id="ae-tabs">
+    <div class="dt on" data-t="n" onclick="setTab('ae','n')">NORMAL</div>
+    <div class="dt" data-t="d" onclick="setTab('ae','d')">DELAYED</div>
+    <div class="dt" data-t="t" onclick="setTab('ae','t')">DOT</div>
+  </div>
+  <div class="dtf on" id="ae-dtf-n">
+    <div class="mg"><div><label>Flat Damage <span style="color:var(--muted)">(empty=advanced)</span></label><input type="number" id="ae-flat-n" min="0" placeholder="optional"></div></div>
+    <button class="adv-btn" id="ae-advbtn-n" onclick="toggleAdv('ae','n')">▶ ADVANCED DMG</button>
+    <div class="adv-fields" id="ae-adv-n"><div class="adv-note">Stat × (Mult/100) × (1+B1/100) × (1+B2/100)</div>
+    <div class="mg">
+      <div><label>Stat (bonus)</label><input type="number" id="ae-stat-n" min="0" placeholder="0" oninput="updAdv('ae','n')"></div>
+      <div><label>Multiplier %</label><input type="number" id="ae-mult-n" min="0" placeholder="e.g. 160" oninput="updAdv('ae','n')"></div>
+      <div><label>Buff 1 %</label><input type="number" id="ae-b1-n" min="0" placeholder="0" oninput="updAdv('ae','n')"></div>
+      <div><label>Buff 2 %</label><input type="number" id="ae-b2-n" min="0" placeholder="0" oninput="updAdv('ae','n')"></div>
+      <div class="full"><div class="adv-prev" id="ae-prev-n"></div></div>
+    </div></div>
+  </div>
+  <div class="dtf" id="ae-dtf-d">
+    <div class="mg">
+      <div><label>Flat Damage <span style="color:var(--muted)">(empty=advanced)</span></label><input type="number" id="ae-flat-d" min="0" placeholder="optional"></div>
+      <div><label>Delay (s)</label><input type="number" id="ae-delay" min="0" step="0.1" placeholder="e.g. 3"></div>
+    </div>
+    <button class="adv-btn" id="ae-advbtn-d" onclick="toggleAdv('ae','d')">▶ ADVANCED DMG</button>
+    <div class="adv-fields" id="ae-adv-d"><div class="adv-note">Stat × (Mult/100) × (1+B1/100) × (1+B2/100)</div>
+    <div class="mg">
+      <div><label>Stat (bonus)</label><input type="number" id="ae-stat-d" min="0" placeholder="0" oninput="updAdv('ae','d')"></div>
+      <div><label>Multiplier %</label><input type="number" id="ae-mult-d" min="0" placeholder="e.g. 160" oninput="updAdv('ae','d')"></div>
+      <div><label>Buff 1 %</label><input type="number" id="ae-b1-d" min="0" placeholder="0" oninput="updAdv('ae','d')"></div>
+      <div><label>Buff 2 %</label><input type="number" id="ae-b2-d" min="0" placeholder="0" oninput="updAdv('ae','d')"></div>
+      <div class="full"><div class="adv-prev" id="ae-prev-d"></div></div>
+    </div></div>
+  </div>
+  <div class="dtf" id="ae-dtf-t">
+    <div class="mg">
+      <div><label>Flat/tick <span style="color:var(--muted)">(empty=advanced)</span></label><input type="number" id="ae-flat-t" min="0" placeholder="optional"></div>
+      <div><label>Tick every (s)</label><input type="number" id="ae-ticki" min="0.1" step="0.1" placeholder="e.g. 2" oninput="updDotPrev('ae')"></div>
+      <div><label>Duration (s)</label><input type="number" id="ae-tickd" min="0" step="0.1" placeholder="e.g. 4" oninput="updDotPrev('ae')"></div>
+      <div style="display:flex;align-items:flex-end"><div id="ae-dot-prev" style="font-family:var(--mono);font-size:11px;color:var(--muted);padding-bottom:8px"></div></div>
+    </div>
+    <button class="adv-btn" id="ae-advbtn-t" onclick="toggleAdv('ae','t')">▶ ADVANCED DMG (per tick)</button>
+    <div class="adv-fields" id="ae-adv-t"><div class="adv-note">per tick</div>
+    <div class="mg">
+      <div><label>Stat (bonus)</label><input type="number" id="ae-stat-t" min="0" placeholder="0" oninput="updAdv('ae','t')"></div>
+      <div><label>Multiplier %</label><input type="number" id="ae-mult-t" min="0" placeholder="e.g. 160" oninput="updAdv('ae','t')"></div>
+      <div><label>Buff 1 %</label><input type="number" id="ae-b1-t" min="0" placeholder="0" oninput="updAdv('ae','t')"></div>
+      <div><label>Buff 2 %</label><input type="number" id="ae-b2-t" min="0" placeholder="0" oninput="updAdv('ae','t')"></div>
+      <div class="full"><div class="adv-prev" id="ae-prev-t"></div></div>
+    </div></div>
+  </div>
+  <hr class="sdiv"><div class="slbl">Effect (optional)</div>
+  <div class="mg">
+    <div><label>Effect Name</label><input type="text" id="ae-effn" placeholder="e.g. Bleed"></div>
+    <div><label>Effect Duration (s)</label><input type="number" id="ae-effd" min="0" step="0.1" placeholder="0"></div>
+    <div class="full"><div class="cb-row"><input type="checkbox" id="ae-stacks"><label for="ae-stacks">Effect stacks on reuse</label></div></div>
+    <div class="full"><div class="cb-row"><input type="checkbox" id="ae-cancrit"><label for="ae-cancrit">Can Crit — ability participates in crit roll based on character's crit rate</label></div></div>
+  </div>
+  <div class="ab-res-section" id="ae-res-sec">
+    <hr class="sdiv"><div class="slbl">Resource Effects</div>
+    <div id="ae-res-rows"></div>
+  </div>
+  <hr class="sdiv"><div class="slbl">Stun Damage (optional)</div>
+  <div class="mg">
+    <div><label>Stun Meter Damage</label><input type="number" id="ae-stundmg" min="0" placeholder="0"></div>
+    <div style="display:flex;align-items:flex-end"><div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding-bottom:8px">Flat amount removed from enemy stun meter on hit.</div></div>
+  </div>
+  <div class="ma">
+    <button class="btn btn-y" onclick="confirmAE()">SAVE ABILITY</button>
+    <button class="btn btn-gh" onclick="closeOv('ov-ae')">CANCEL</button>
+  </div>
+</div>
+</div>
+
+<!-- EDIT PRESET CHAR MODAL -->
+<div class="ov" id="ov-epc">
+<div class="mbox" style="max-width:420px">
+  <h2 id="epc-title">EDIT CHARACTER</h2>
+  <div class="mg">
+    <div class="full"><label>Base Stat</label><input type="number" id="epc-stat" min="0" placeholder="e.g. 62"></div>
+    <div class="full"><label>Description</label><textarea id="epc-desc" placeholder="Optional"></textarea></div>
+  </div>
+  <hr class="sdiv"><div class="slbl">Crit Stats</div>
+  <div class="mg">
+    <div><label>Crit Rate %</label><input type="number" id="epc-cr" min="0" max="100" step="0.1" placeholder="e.g. 20"></div>
+    <div><label>Crit DMG %</label><input type="number" id="epc-cd" min="0" step="0.1" placeholder="e.g. 50"></div>
+  </div>
+  <hr class="sdiv"><div class="slbl">Resources (up to 3)</div>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+    <div style="display:grid;grid-template-columns:1fr 100px;gap:8px">
+      <div><div class="flbl">Resource 1 Name</div><input type="text" id="epc-r0n" placeholder="e.g. Energy"></div>
+      <div><div class="flbl">Max Stacks</div><input type="number" id="epc-r0m" min="0" placeholder="∞"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 100px;gap:8px">
+      <div><div class="flbl">Resource 2 Name</div><input type="text" id="epc-r1n" placeholder="e.g. Mana"></div>
+      <div><div class="flbl">Max Stacks</div><input type="number" id="epc-r1m" min="0" placeholder="∞"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 100px;gap:8px">
+      <div><div class="flbl">Resource 3 Name</div><input type="text" id="epc-r2n" placeholder="e.g. Rage"></div>
+      <div><div class="flbl">Max Stacks</div><input type="number" id="epc-r2m" min="0" placeholder="∞"></div>
+    </div>
+  </div>
+  <div class="ma">
+    <button class="btn btn-y" onclick="saveEPC()">SAVE</button>
+    <button class="btn btn-gh" onclick="closeOv('ov-epc')">CANCEL</button>
+  </div>
+</div>
+</div>
+
+<!-- PP PANEL -->
+<div id="pp">
+<div class="pp-box">
+  <div class="pp-head">
+    <h3 id="pp-title">ABILITIES</h3>
+    <button class="btn btn-gh btn-sm" onclick="closePP()">CLOSE</button>
+  </div>
+  <div id="pp-crit-section" style="display:none;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0"></div>
+  <div class="pp-list" id="pp-list"></div>
+</div>
+</div>
+
+<!-- TARGET PICKER -->
+<div class="ov" id="ov-target">
+<div class="mbox" style="max-width:420px">
+  <h2>SELECT TARGET</h2>
+  <p style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px">Pick which enemy to hit.</p>
+  <div class="tgt-list" id="tgt-list"></div>
+  <div class="ma"><button class="btn btn-gh" onclick="closeOv('ov-target');pendingEntry=null;pendingAb=null">CANCEL</button></div>
+</div>
+</div>
+
+<!-- ALERT MODAL -->
+<div class="ov" id="ov-alert">
+<div class="warn-box">
+  <h3>⚠ ON COOLDOWN</h3>
+  <p id="alert-msg"></p>
+  <div class="warn-acts">
+    <button class="btn btn-r btn-sm" id="alert-ok">USE REGARDLESS</button>
+    <button class="btn btn-gh btn-sm" onclick="closeOv('ov-alert')">CANCEL</button>
+  </div>
+</div>
+</div>
+
+<!-- RESOURCE WARNING -->
+<div class="ov" id="ov-rw">
+<div class="warn-box yw">
+  <h3>⚠ NOT ENOUGH RESOURCES</h3>
+  <p id="rw-msg"></p>
+  <div class="warn-acts">
+    <button class="btn btn-ys btn-sm" id="rw-ok">USE ANYWAY</button>
+    <button class="btn btn-gh btn-sm" onclick="closeOv('ov-rw')">CANCEL</button>
+  </div>
+</div>
+</div>
+
+<!-- RESET MODAL -->
+<div class="ov" id="ov-reset">
+<div class="warn-box">
+  <h3>⚠ RESET</h3>
+  <p>Choose an option. Both clear the log and cannot be undone.</p>
+  <div class="warn-acts" style="flex-direction:column;gap:6px">
+    <button class="btn btn-r btn-sm" style="width:100%" onclick="doReset()">CLEAR LOG — keep characters</button>
+    <button class="btn btn-r btn-sm" style="width:100%;opacity:.7" onclick="goSetup()">NEW SESSION — back to setup</button>
+    <button class="btn btn-gh btn-sm" style="width:100%;margin-top:4px" onclick="closeOv('ov-reset')">CANCEL</button>
+  </div>
+</div>
+</div>
+
+<!-- BATTLE RESET MODAL -->
+<div class="ov" id="ov-breset">
+<div class="warn-box">
+  <h3>⚠ END BATTLE</h3>
+  <p>Return to setup? All battle data will be lost.</p>
+  <div class="warn-acts" style="flex-direction:column;gap:6px">
+    <button class="btn btn-r btn-sm" style="width:100%" onclick="endBattle()">CONFIRM — back to setup</button>
+    <button class="btn btn-gh btn-sm" style="width:100%;margin-top:4px" onclick="closeOv('ov-breset')">CANCEL</button>
+  </div>
+</div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="ov" id="ov-cf">
+<div class="warn-box">
+  <h3 id="cf-title">CONFIRM</h3>
+  <p id="cf-msg"></p>
+  <div class="warn-acts">
+    <button class="btn btn-r btn-sm" id="cf-ok">CONFIRM</button>
+    <button class="btn btn-gh btn-sm" onclick="closeOv('ov-cf')">CANCEL</button>
+  </div>
+</div>
+</div>
+
+<!-- RESULT MODAL -->
+<div class="ov" id="ov-result">
+<div class="result-box" id="result-box">
+  <h3 id="result-title"></h3>
+  <p id="result-msg"></p>
+  <button class="btn btn-gh btn-sm" onclick="closeOv('ov-result')">DISMISS</button>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════
+// Safe text for innerHTML — escapes HTML chars, preserves newlines
+function safe(str){
+  if(!str)return '';
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+  // CSS white-space:pre-wrap handles \n visually, no <br> needed
+}
+
+// Normalize old dmgType strings to new single-char format
+function normDmgType(t){
+  if(!t)return 'n';
+  if(t==='normal'||t==='n')return 'n';
+  if(t==='delayed'||t==='d')return 'd';
+  if(t==='dot'||t==='t')return 't';
+  return 'n';
+}
+
+const SAVE_KEY='dmgcalc_v4';
+function savePresets(){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({chars:PC,nextPCId,nextAbId}));}catch(e){}
+}
+function loadPresets(){
+  try{
+    const r=localStorage.getItem(SAVE_KEY);
+    if(r)return JSON.parse(r);
+    // Migrate from older versions
+    for(const k of['dmgcalc_v3','dmgcalc_v2']){
+      const old=localStorage.getItem(k);
+      if(old){
+        const d=JSON.parse(old);
+        if(d.chars)d.chars=d.chars.map(c=>({baseStat:0,desc:'',resources:[{name:'',max:null},{name:'',max:null},{name:'',max:null}],...c,
+          abilities:(c.abilities||[]).map(ab=>({
+            id:ab.id!=null?ab.id:nextAbId++,
+            dmgFlat:ab.dmgFlat!=null?ab.dmgFlat:(ab.dmg!=null?ab.dmg:null),
+            stat:0,mult:0,b1:0,b2:0,hitType:'single',resources:null,variants:[],...ab,
+            dmgType:normDmgType(ab.dmgType),
+            ticki:ab.ticki||ab.dotInterval||0,
+            tickd:ab.tickd||ab.dotDuration||0,
+            effName:ab.effName||ab.effectName||'',
+            effDur:ab.effDur||ab.effectDuration||0,
+          }))
+        }));
+        return d;
+      }
+    }
+  }catch(e){}
+  return null;
+}
+
+// ═══════════════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════════════
+const _s=loadPresets();
+let PC=_s?_s.chars:[];           // preset characters
+let nextPCId=_s?_s.nextPCId:1;
+let nextAbId=_s?_s.nextAbId:1;
+
+// Calc state
+let chars=[];   // [{name,presetId}]
+let cLog=[];
+let cLogId=1;
+
+// Battle state
+let bChars=[];
+let bEnemies=[];
+let bLog=[];
+let bLogId=1;
+let bTimerTotal=0;
+let bOver=false;
+
+// Resources: presetId -> [cur0,cur1,cur2]
+let sRes={};
+// Crit bonuses: presetId -> {bonusCR, bonusCD}
+let sCrit={};
+
+// Modal/ui state
+let lmMode='add';       // add|reuse|battle-add|battle-reuse
+let lmTab='n';          // n|d|t
+let aeTab='n';
+let aePCId=null;
+let aeAbId=null;
+let aeVarIdx=null;  // null = base ability, number = variant index being edited
+let epcId=null;
+let ppMode='calc';      // calc|battle
+let ppCharIdx=null;
+let ppVarState={};    // abId -> current variant index (-1 = base)
+let pendingEntry=null;  // waiting for target picker
+let pendingAb=null;     // source ability for resource application
+let pcExpanded=new Set();
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function openOv(id){document.getElementById(id).classList.add('on');}
+function closeOv(id){document.getElementById(id).classList.remove('on');}
+function closePP(){document.getElementById('pp').classList.remove('on');}
+
+function showAlert(msg,cb){
+  document.getElementById('alert-msg').textContent=msg;
+  document.getElementById('alert-ok').onclick=()=>{closeOv('ov-alert');cb();};
+  openOv('ov-alert');
+}
+function showCF(title,msg,cb){
+  document.getElementById('cf-title').textContent=title;
+  document.getElementById('cf-msg').textContent=msg;
+  document.getElementById('cf-ok').onclick=()=>{closeOv('ov-cf');cb();};
+  openOv('ov-cf');
+}
+function showRW(msg,cb){
+  document.getElementById('rw-msg').textContent=msg;
+  document.getElementById('rw-ok').onclick=()=>{closeOv('ov-rw');cb();};
+  openOv('ov-rw');
+}
+
+function resolveChars(sel){
+  const out=[];
+  document.querySelectorAll(sel+' input[type=text]').forEach((inp,i)=>{
+    const v=inp.value.trim();
+    if(!v){out.push({name:'Char '+(i+1),presetId:null});return;}
+    const m=v.match(/^#(\d+)$/i);
+    if(m){const pid=parseInt(m[1]);const pc=PC.find(c=>c.id===pid);if(pc){out.push({name:pc.name,presetId:pid});return;}}
+    out.push({name:v,presetId:null});
+  });
+  return out;
+}
+function initRes(charList){charList.forEach(c=>{if(c.presetId&&!sRes[c.presetId])sRes[c.presetId]=[0,0,0];});}
+function getRes(pid,i){return(sRes[pid]||[0,0,0])[i]||0;}
+function setRes(pid,i,v){
+  if(!sRes[pid])sRes[pid]=[0,0,0];
+  const pc=PC.find(p=>p.id===pid);
+  const max=pc?.resources?.[i]?.max;
+  v=Math.max(0,v);
+  if(max!=null)v=Math.min(max,v);
+  sRes[pid][i]=v;
+}
+function activeRes(pc){
+  if(!pc?.resources)return[];
+  return pc.resources.map((r,i)=>({...r,idx:i})).filter(r=>r&&r.name);
+}
+function getBaseStat(pid){const pc=PC.find(p=>p.id===pid);return pc?pc.baseStat||0:0;}
+function computeDmg(flat,stat,mult,b1,b2,cbs,legacyDmg){
+  if(flat!==null&&flat!==undefined&&flat!=='')return parseFloat(flat)||0;
+  const m=parseFloat(mult)||0;const s=(parseFloat(stat)||0)+(parseFloat(cbs)||0);
+  if(m>0&&s>0)return Math.round(s*(m/100)*(1+(parseFloat(b1)||0)/100)*(1+(parseFloat(b2)||0)/100));
+  if(legacyDmg!=null&&legacyDmg!=='')return parseFloat(legacyDmg)||0;
+  return 0;
+}
+function entryDmg(e){
+  const base=computeDmg(e.dmgFlat,e.stat,e.mult,e.b1,e.b2,e.cbs||0,e.dmg);
+  const t=normDmgType(e.dmgType);
+  let dmg=t==='t'?(!e.ticki||e.ticki<=0?0:Math.floor(e.tickd/e.ticki)*base):base;
+  if(e.critApplied&&e.critMult)dmg=Math.round(dmg*e.critMult);
+  return dmg;
+}
+function abDmg(ab,pid){
+  const cbs=pid!=null?getBaseStat(pid):0;
+  const base=computeDmg(ab.dmgFlat,ab.stat,ab.mult,ab.b1,ab.b2,cbs,ab.dmg);
+  const t=normDmgType(ab.dmgType);
+  if(t==='t'){if(!ab.ticki||ab.ticki<=0)return 0;return Math.floor(ab.tickd/ab.ticki)*base;}
+  return base;
+}
+function recalcLog(log){
+  let c=0;for(let i=log.length-1;i>=0;i--){c+=log[i].castTime;log[i].timeAt=parseFloat(c.toFixed(4));}
+}
+function logTotalTime(log){return log.length>0?log[0].timeAt:0;}
+function getCDRem(entry,log){
+  const tt=logTotalTime(log);
+  const castTime=parseFloat(entry.castTime)||0;
+  const cooldown=parseFloat(entry.cooldown)||0;
+  const timeAt=parseFloat(entry.timeAt)||0;
+  const castStart=timeAt-castTime;
+  return Math.max(0,parseFloat((castStart+cooldown-tt).toFixed(4)));
+}
+function checkRes(ab,charObj){
+  if(!charObj.presetId||!ab?.resources)return[];
+  const pc=PC.find(p=>p.id===charObj.presetId);if(!pc)return[];
+  const short=[];
+  (ab.resources||[]).forEach((r,i)=>{
+    if(!r||r.mode!=='cost'||!r.amount)return;
+    const rDef=pc.resources?.[i];if(!rDef?.name)return;
+    const have=getRes(charObj.presetId,i);
+    if(have<r.amount)short.push({idx:i,name:rDef.name,need:r.amount,have});
+  });
+  return short;
+}
+function applyRes(ab,charObj,force){
+  if(!charObj?.presetId||!ab?.resources)return;
+  const pc=PC.find(p=>p.id===charObj.presetId);if(!pc)return;
+  (ab.resources||[]).forEach((r,i)=>{
+    if(!r||!r.mode||!r.amount)return;
+    const rDef=pc.resources?.[i];if(!rDef?.name)return;
+    const cur=getRes(charObj.presetId,i);
+    if(r.mode==='gain')setRes(charObj.presetId,i,cur+r.amount);
+    else if(r.mode==='cost')setRes(charObj.presetId,i,cur-(force?cur:r.amount));
+  });
+}
+// ── CRIT HELPERS ──
+function getCharCritStats(charObj){
+  if(!charObj?.presetId)return{rate:0,dmg:0};
+  const pc=PC.find(p=>p.id===charObj.presetId);
+  const base={rate:pc?.critRate||0,dmg:pc?.critDmg||0};
+  const bonus=sCrit[charObj.presetId]||{bonusCR:0,bonusCD:0};
+  return{rate:base.rate+(bonus.bonusCR||0),dmg:base.dmg+(bonus.bonusCD||0)};
+}
+
+function rollCrit(canCrit,charObj){
+  if(!canCrit)return false;
+  const{rate}=getCharCritStats(charObj);
+  if(!rate||rate<=0)return false;
+  return Math.random()*100<rate;
+}
+
+function applyCritDmg(baseDmg,charObj){
+  const{dmg}=getCharCritStats(charObj);
+  return Math.round(baseDmg*(1+dmg/100));
+}
+
+function getActiveEffects(log){
+  const tt=logTotalTime(log);const map={};
+  for(let i=log.length-1;i>=0;i--){
+    const e=log[i];if(!e.effName||!e.effDur)continue;
+    const end=(e.timeAt-e.castTime)+e.effDur;
+    if(!map[e.effName])map[e.effName]={stacks:e.stacks,ends:[]};
+    if(e.stacks)map[e.effName].ends.push(end);else map[e.effName].ends=[end];
+  }
+  const out=[];
+  for(const[name,d]of Object.entries(map)){
+    const live=d.ends.filter(t=>t>tt);
+    if(live.length)out.push({name,stacks:live.length,rem:Math.max(...live)-tt});
+  }
+  return out;
+}
+
+// ═══════════════════════════════════════════════
+// SETUP — INPUTS
+// ═══════════════════════════════════════════════
+function setCC(){buildInputs('cc-inputs',parseInt(document.getElementById('cc').value)||1,'Name or #ID');}
+function setBC(){buildInputs('bc-inputs',parseInt(document.getElementById('bc').value)||1,'Name or #ID');}
+function setEC(){
+  const n=Math.max(1,parseInt(document.getElementById('ec').value)||1);
+  const c=document.getElementById('ec-inputs');
+  const ex=[...c.querySelectorAll('.srow')].map(r=>({n:r.querySelector('input[type=text]')?.value||'',h:r.querySelector('input[type=number]')?.value||'100'}));
+  c.innerHTML='';
+  for(let i=0;i<n;i++){
+    const d=document.createElement('div');d.className='srow';
+    d.innerHTML=`<input type="text" placeholder="Enemy ${i+1}" style="flex:1" value="${ex[i]?.n||''}"><input type="number" placeholder="HP" style="width:80px;flex-shrink:0" value="${ex[i]?.h||'100'}">`;
+    c.appendChild(d);
+  }
+}
+function buildInputs(cId,n,ph){
+  const c=document.getElementById(cId);
+  const ex=[...c.querySelectorAll('input')].map(i=>i.value);
+  c.innerHTML='';
+  for(let i=0;i<n;i++){const inp=document.createElement('input');inp.type='text';inp.placeholder=ph;inp.value=ex[i]||'';c.appendChild(inp);}
+}
+
+// ═══════════════════════════════════════════════
+// START SESSIONS
+// ═══════════════════════════════════════════════
+function startCalc(){
+  chars=resolveChars('#cc-inputs');
+  cLog=[];cLogId=1;sRes={};initRes(chars);
+  document.getElementById('setup').style.display='none';
+  document.getElementById('app').style.display='flex';
+  fillCharSel(chars);renderApp();
+}
+function startBattle(){
+  bChars=resolveChars('#bc-inputs');
+  if(!bChars.length){alert('Add at least one character.');return;}
+  bEnemies=[];
+  document.querySelectorAll('#ec-inputs .srow').forEach((row,i)=>{
+    const nm=row.querySelector('input[type=text]')?.value.trim()||'Enemy '+(i+1);
+    const hp=parseInt(row.querySelector('input[type=number]')?.value)||100;
+    bEnemies.push({name:nm,maxHp:hp,hp});
+  });
+  if(!bEnemies.length){alert('Add at least one enemy.');return;}
+  bTimerTotal=parseFloat(document.getElementById('bc-timer').value)||0;
+  bLog=[];bLogId=1;bOver=false;sRes={};initRes(bChars);
+  document.getElementById('setup').style.display='none';
+  document.getElementById('battle').style.display='flex';
+  fillCharSel(bChars);renderBattle();
+}
+function fillCharSel(charList){
+  const sel=document.getElementById('lm-char');sel.innerHTML='';
+  charList.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=c.presetId?c.name+' [#'+c.presetId+']':c.name;sel.appendChild(o);});
+}
+
+// ═══════════════════════════════════════════════
+// PRESET LIBRARY
+// ═══════════════════════════════════════════════
+function addPC(){
+  const rawId=document.getElementById('np-id').value.trim().replace(/^#/,'');
+  const name=document.getElementById('np-name').value.trim();
+  if(!rawId){alert('Enter an ID.');return;}if(!name){alert('Enter a name.');return;}
+  const pid=parseInt(rawId);
+  if(isNaN(pid)||pid<=0){alert('ID must be a positive number.');return;}
+  if(PC.find(c=>c.id===pid)){alert('ID #'+pid+' already taken.');return;}
+  const baseStat=parseFloat(document.getElementById('np-stat').value)||0;
+  const desc=document.getElementById('np-desc').value.trim();
+  PC.push({id:pid,name,baseStat,desc,resources:[{name:'',max:null},{name:'',max:null},{name:'',max:null}],abilities:[]});
+  savePresets();
+  document.getElementById('np-id').value='';document.getElementById('np-name').value='';
+  document.getElementById('np-stat').value='';document.getElementById('np-desc').value='';
+  renderLibrary();
+}
+function delPC(pid){showCF('DELETE','Delete this preset character and all their abilities?',()=>{PC=PC.filter(c=>c.id!==pid);savePresets();renderLibrary();});}
+function renamePC(pid){
+  const card=document.getElementById('pc-'+pid);
+  card.querySelector('.pc-nm').style.display='none';
+  const ei=card.querySelector('.pc-nm-edit');ei.classList.add('on');ei.focus();ei.select();
+}
+function saveRename(pid){
+  const card=document.getElementById('pc-'+pid);
+  const v=card.querySelector('.pc-nm-edit').value.trim();
+  if(v){const pc=PC.find(c=>c.id===pid);if(pc)pc.name=v;savePresets();}
+  renderLibrary();
+}
+function openEPC(pid){
+  epcId=pid;const pc=PC.find(c=>c.id===pid);if(!pc)return;
+  document.getElementById('epc-title').textContent='EDIT — '+pc.name;
+  document.getElementById('epc-stat').value=pc.baseStat||'';
+  document.getElementById('epc-desc').value=pc.desc||'';
+  document.getElementById('epc-cr').value=pc.critRate??'';
+  document.getElementById('epc-cd').value=pc.critDmg??'';
+  for(let i=0;i<3;i++){
+    const r=pc.resources?.[i]||{};
+    document.getElementById('epc-r'+i+'n').value=r.name||'';
+    document.getElementById('epc-r'+i+'m').value=r.max!=null?r.max:'';
+  }
+  openOv('ov-epc');
+}
+function saveEPC(){
+  const pc=PC.find(c=>c.id===epcId);if(!pc)return;
+  pc.baseStat=parseFloat(document.getElementById('epc-stat').value)||0;
+  pc.desc=document.getElementById('epc-desc').value.trim();
+  const crRaw=document.getElementById('epc-cr').value;
+  const cdRaw=document.getElementById('epc-cd').value;
+  pc.critRate=crRaw!==''?parseFloat(crRaw):null;
+  pc.critDmg=cdRaw!==''?parseFloat(cdRaw):null;
+  pc.resources=[];
+  for(let i=0;i<3;i++){
+    const nm=document.getElementById('epc-r'+i+'n').value.trim();
+    const mx=document.getElementById('epc-r'+i+'m').value;
+    pc.resources.push({name:nm,max:mx!==''?parseInt(mx):null});
+  }
+  savePresets();closeOv('ov-epc');renderLibrary();
+}
+function toggleExpand(pid){pcExpanded.has(pid)?pcExpanded.delete(pid):pcExpanded.add(pid);renderLibrary();}
+
+function renderLibrary(){
+  const el=document.getElementById('pc-list');
+  if(!PC.length){el.innerHTML='<div style="font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;padding:10px">// no preset characters yet</div>';return;}
+  el.innerHTML='';
+  [...PC].reverse().forEach(pc=>{
+    const exp=pcExpanded.has(pc.id);
+    const card=document.createElement('div');card.className='pc-card';card.id='pc-'+pc.id;
+    // Ensure all abilities have ids (guard against old data)
+    pc.abilities.forEach(ab=>{if(ab.id==null){ab.id=nextAbId++;savePresets();}if(!ab.variants)ab.variants=[];});
+    const abHtml=pc.abilities.length?pc.abilities.map(ab=>{
+      const td=abDmg(ab,pc.id);
+      const typeTag=normDmgType(ab.dmgType)!=='n'?` <span style="color:${normDmgType(ab.dmgType)==='t'?'#8e44ad':'#e67e22'}">[${normDmgType(ab.dmgType)==='t'?'DOT':'DELAYED'}]</span>`:'';
+      const varHtml=(ab.variants||[]).map((vr,vi)=>{
+        const vtd=abDmg(vr,pc.id);
+        return `<div class="var-row">
+          <div class="var-tag">▸ ${safe(vr.tag||'VARIANT')}</div>
+          <div class="var-nm">${safe(vr.name||ab.name)}${vr.canCrit?` <span style="color:#e74c3c;font-size:9px;border:1px solid #e74c3c;padding:1px 4px">CRIT</span>`:''}${vr.stunDmg?` <span style="color:#f39c12;font-size:9px;border:1px solid #f39c12;padding:1px 4px">STUN ${vr.stunDmg}</span>`:''}</div>
+          <div class="var-meta">DMG ${vtd} · CAST ${vr.castTime}s · CD ${vr.cooldown}s${vr.effName?' · ⬡ '+safe(vr.effName):''}</div>
+          ${vr.desc?`<div class="var-meta" style="font-style:italic;white-space:pre-wrap;word-break:break-word">${safe(vr.desc)}</div>`:''}
+          <div class="var-acts">
+            <button class="btn btn-gh btn-xs" onclick="openAEEditVariant(${pc.id},${ab.id},${vi})">EDIT</button>
+            <button class="btn btn-r btn-xs" onclick="delVariant(${pc.id},${ab.id},${vi})">DEL</button>
+          </div>
+        </div>`;
+      }).join('');
+      return `<div class="ab-row">
+        <div class="ab-info">
+          <div class="ab-nm">${safe(ab.name)}${typeTag}${ab.canCrit?` <span style="color:#e74c3c;font-size:9px;border:1px solid #e74c3c;padding:1px 4px">CRIT</span>`:''}${ab.stunDmg?` <span style="color:#f39c12;font-size:9px;border:1px solid #f39c12;padding:1px 4px">STUN ${ab.stunDmg}</span>`:''}</div>
+          <div class="ab-meta">DMG ${td} · CAST ${ab.castTime}s · CD ${ab.cooldown}s${ab.effName?' · ⬡ '+safe(ab.effName):''}</div>
+          ${ab.desc?`<div class="ab-meta" style="font-style:italic;white-space:pre-wrap;word-break:break-word">${safe(ab.desc)}</div>`:''}
+        </div>
+        <div class="ab-acts">
+          <button class="btn btn-gh btn-xs" onclick="toggleCDLink(${pc.id},${ab.id})" title="${ab.cdLinked===false?'Cooldowns: Unlinked':'Cooldowns: Linked'}"
+            style="color:${ab.cdLinked===false?'#e67e22':'var(--yd)'}">
+            ${ab.cdLinked===false?'CD: UNLINKED':'CD: LINKED'}
+          </button>
+          <button class="btn btn-gh btn-xs" onclick="openAEVariant(${pc.id},${ab.id})">+ VAR</button>
+          <button class="btn btn-gh btn-xs" onclick="openAE(${pc.id},${ab.id})">EDIT</button>
+          <button class="btn btn-r btn-xs" onclick="delAb(${pc.id},${ab.id})">DEL</button>
+        </div>
+        ${varHtml?`<div class="var-list">${varHtml}</div>`:''}
+      </div>`;
+    }).join(''):'<div class="pc-no-ab">no abilities saved yet</div>';
+    const resList=activeRes(pc);
+    const resStr=resList.length?` · <span style="color:var(--yd)">${resList.map(r=>r.name).join(', ')}</span>`:'';
+    card.innerHTML=`
+      <div class="pc-head">
+        <div class="pc-meta">
+          <div class="pc-id">#${pc.id}${pc.baseStat?' · STAT '+pc.baseStat:''}${pc.critRate!=null?` · CR ${pc.critRate}%`:''}${pc.critDmg!=null?` · CD ${pc.critDmg}%`:''}${resStr}</div>
+          <div class="pc-nm">${pc.name}</div>
+          <input class="pc-nm-edit" type="text" value="${pc.name}" onblur="saveRename(${pc.id})" onkeydown="if(event.key==='Enter')saveRename(${pc.id})">
+          ${pc.desc?`<div class="pc-desc">${pc.desc}</div>`:''}
+        </div>
+        <div class="pc-acts">
+          <button class="btn btn-gh btn-xs" onclick="toggleExpand(${pc.id})">${exp?'▲':'▼'}</button>
+          <button class="btn btn-gh btn-xs" onclick="renamePC(${pc.id})">RENAME</button>
+          <button class="btn btn-gh btn-xs" onclick="openEPC(${pc.id})">EDIT</button>
+          <button class="btn btn-ys btn-xs" onclick="openAE(${pc.id},null)">+ ABILITY</button>
+          <button class="btn btn-r btn-xs" onclick="delPC(${pc.id})">DELETE</button>
+        </div>
+      </div>
+      ${exp?`<div class="pc-abs">${abHtml}</div>`:''}
+    `;
+    el.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// ABILITY EDITOR
+// ═══════════════════════════════════════════════
+function openAE(pcId,abId){
+  aePCId=pcId;
+  aeAbId=(abId!=null)?abId:null;
+  aeVarIdx=null;
+  const pc=PC.find(c=>c.id===pcId);
+  const src=aeAbId!==null?pc?.abilities.find(a=>a.id===aeAbId):null;
+  _fillAE(pcId,aeAbId,src,null);
+}
+// Open AE to add a new variant (prefilled from base ability)
+function openAEVariant(pcId,abId){
+  aePCId=pcId;aeAbId=abId;aeVarIdx='new';
+  const pc=PC.find(c=>c.id===pcId);
+  const ab=pc?.abilities.find(a=>a.id===abId);
+  _fillAE(pcId,abId,ab,null); // prefill from base
+  document.getElementById('ae-title').textContent='ADD VARIANT';
+  document.getElementById('ae-var-row').style.display='block';
+  document.getElementById('ae-vartag').value='';
+}
+// Open AE to edit existing variant
+function openAEEditVariant(pcId,abId,varIdx){
+  aePCId=pcId;aeAbId=abId;aeVarIdx=varIdx;
+  const pc=PC.find(c=>c.id===pcId);
+  const ab=pc?.abilities.find(a=>a.id===abId);
+  const vr=ab?.variants?.[varIdx];
+  _fillAE(pcId,abId,vr,null);
+  document.getElementById('ae-title').textContent='EDIT VARIANT';
+  document.getElementById('ae-var-row').style.display='block';
+  document.getElementById('ae-vartag').value=vr?.tag||'';
+}
+function _fillAE(pcId,abId,src,_unused){
+  try{
+  clearAE();setTab('ae','n');
+  const pc=PC.find(c=>c.id===pcId);
+  const hint=document.getElementById('ae-stat-hint');
+  if(pc?.baseStat>0){hint.style.display='block';document.getElementById('ae-stat-val').textContent=pc.baseStat;}
+  else hint.style.display='none';
+  document.getElementById('ae-var-row').style.display='none';
+  document.getElementById('ae-vartag').value='';
+  if(src){
+    if(aeVarIdx===null&&abId!==null)document.getElementById('ae-title').textContent='EDIT ABILITY';
+    else if(aeVarIdx===null)document.getElementById('ae-title').textContent='ADD ABILITY';
+    document.getElementById('ae-name').value=src.name||'';
+    document.getElementById('ae-desc').value=src.desc||'';
+    document.getElementById('ae-cast').value=src.castTime||'';
+    document.getElementById('ae-cd').value=src.cooldown||'';
+    document.getElementById('ae-hit').value=src.hitType||'single';
+    setTab('ae',normDmgType(src.dmgType));
+    const s=normDmgType(src.dmgType);
+    const fe=document.getElementById('ae-flat-'+s);if(fe&&src.dmgFlat!=null)fe.value=src.dmgFlat;
+    if((src.mult||0)>0||(src.stat||0)>0||(src.b1||0)>0||(src.b2||0)>0){
+      ['stat','mult','b1','b2'].forEach(k=>{const el=document.getElementById('ae-'+k+'-'+s);if(el)el.value=src[k]||0;});
+      const adv=document.getElementById('ae-adv-'+s);
+      const btn=document.getElementById('ae-advbtn-'+s);
+      if(adv){adv.classList.add('on');if(btn)btn.textContent=btn.textContent.replace('▶','▼');}
+      updAdv('ae',s);
+    }
+    if(s==='d')document.getElementById('ae-delay').value=src.delay||0;
+    if(s==='t'){document.getElementById('ae-ticki').value=src.ticki||0;document.getElementById('ae-tickd').value=src.tickd||0;updDotPrev('ae');}
+    document.getElementById('ae-effn').value=src.effName||'';
+    document.getElementById('ae-effd').value=src.effDur||'';
+    document.getElementById('ae-stacks').checked=src.stacks||false;
+    document.getElementById('ae-cancrit').checked=src.canCrit||false;
+    const stundmgEl=document.getElementById('ae-stundmg');
+    if(stundmgEl)stundmgEl.value=src.stunDmg||'';
+    renderAERes(pc,src.resources);
+  } else {
+    document.getElementById('ae-title').textContent='ADD ABILITY';
+    renderAERes(pc,null);
+  }
+  openOv('ov-ae');
+  }catch(err){
+    console.error('_fillAE error:',err);
+    alert('Error opening ability editor: '+err.message);
+  }
+}
+function clearAE(){
+  ['ae-name','ae-desc','ae-effn','ae-vartag','ae-stundmg'].forEach(id=>document.getElementById(id).value='');
+  ['ae-flat-n','ae-flat-d','ae-flat-t','ae-cast','ae-cd','ae-delay','ae-ticki','ae-tickd','ae-effd',
+   'ae-stat-n','ae-mult-n','ae-b1-n','ae-b2-n','ae-stat-d','ae-mult-d','ae-b1-d','ae-b2-d',
+   'ae-stat-t','ae-mult-t','ae-b1-t','ae-b2-t'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['ae-prev-n','ae-prev-d','ae-prev-t','ae-dot-prev'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='';});
+  ['n','d','t'].forEach(s=>{
+    const adv=document.getElementById('ae-adv-'+s);const btn=document.getElementById('ae-advbtn-'+s);
+    if(adv)adv.classList.remove('on');if(btn)btn.textContent=btn.textContent.replace('▼','▶');
+  });
+  document.getElementById('ae-stacks').checked=false;
+  document.getElementById('ae-cancrit').checked=false;
+  document.getElementById('ae-res-sec').classList.remove('on');
+}
+function renderAERes(pc,savedRes){
+  const sec=document.getElementById('ae-res-sec');
+  const rows=document.getElementById('ae-res-rows');
+  const ar=activeRes(pc);
+  if(!ar.length){sec.classList.remove('on');return;}
+  sec.classList.add('on');rows.innerHTML='';
+  ar.forEach(r=>{
+    const sv=savedRes?.[r.idx]||{};
+    const row=document.createElement('div');row.className='ab-res-item';
+    row.innerHTML=`
+      <div class="ab-res-lbl">${r.name}</div>
+      <input type="number" id="ae-ra-${r.idx}" min="0" placeholder="0" value="${sv.amount||''}"
+        style="font-family:var(--mono);font-size:12px;padding:5px 7px;background:var(--bg);border:1px solid var(--border);color:var(--text);">
+      <select id="ae-rm-${r.idx}" style="font-family:var(--mono);font-size:12px;padding:5px 7px;background:var(--bg);border:1px solid var(--border);color:var(--text);">
+        <option value="" ${!sv.mode?'selected':''}>— none —</option>
+        <option value="gain" ${sv.mode==='gain'?'selected':''}>Gain</option>
+        <option value="cost" ${sv.mode==='cost'?'selected':''}>Cost</option>
+      </select>
+    `;
+    rows.appendChild(row);
+  });
+}
+function readAERes(pc){
+  const ar=activeRes(pc);if(!ar.length)return null;
+  const res=[null,null,null];
+  ar.forEach(r=>{
+    const amt=parseFloat(document.getElementById('ae-ra-'+r.idx)?.value)||0;
+    const mode=document.getElementById('ae-rm-'+r.idx)?.value||'';
+    if(mode&&amt>0)res[r.idx]={amount:amt,mode};
+  });
+  return res;
+}
+function confirmAE(){
+  const name=document.getElementById('ae-name').value.trim();if(!name){alert('Name required.');return;}
+  const pc=PC.find(c=>c.id===aePCId);if(!pc)return;
+  const s=normDmgType(aeTab);
+  const flatRaw=document.getElementById('ae-flat-'+s)?.value??'';
+  const abData={
+    name,desc:document.getElementById('ae-desc').value.trim(),
+    castTime:parseFloat(document.getElementById('ae-cast').value)||0,
+    cooldown:parseFloat(document.getElementById('ae-cd').value)||0,
+    hitType:document.getElementById('ae-hit').value,
+    dmgType:s,
+    dmgFlat:flatRaw!==''?parseFloat(flatRaw):null,
+    dmg:null,// legacy field cleared
+    stat:parseFloat(document.getElementById('ae-stat-'+s).value)||0,
+    mult:parseFloat(document.getElementById('ae-mult-'+s).value)||0,
+    b1:parseFloat(document.getElementById('ae-b1-'+s).value)||0,
+    b2:parseFloat(document.getElementById('ae-b2-'+s).value)||0,
+    delay:parseFloat(document.getElementById('ae-delay').value)||0,
+    ticki:parseFloat(document.getElementById('ae-ticki').value)||0,
+    tickd:parseFloat(document.getElementById('ae-tickd').value)||0,
+    effName:document.getElementById('ae-effn').value.trim(),
+    effDur:parseFloat(document.getElementById('ae-effd').value)||0,
+    stacks:document.getElementById('ae-stacks').checked,
+    canCrit:document.getElementById('ae-cancrit').checked,
+    stunDmg:parseFloat(document.getElementById('ae-stundmg')?.value)||0,
+    resources:readAERes(pc)
+  };
+  if(aeVarIdx!==null){
+    // Saving a variant
+    const ab=pc.abilities.find(a=>a.id===aeAbId);if(!ab)return;
+    if(!ab.variants)ab.variants=[];
+    const tag=document.getElementById('ae-vartag').value.trim()||'Variant';
+    const varData={...abData,tag};
+    if(aeVarIdx==='new')ab.variants.push(varData);
+    else ab.variants[aeVarIdx]=varData;
+  } else {
+    // Saving base ability
+    if(aeAbId!==null){
+      const ab=pc.abilities.find(a=>a.id===aeAbId);
+      if(ab){const variants=ab.variants;Object.assign(ab,abData);ab.variants=variants||[];}
+    } else {
+      pc.abilities.push({id:nextAbId++,...abData,variants:[]});
+    }
+  }
+  savePresets();closeOv('ov-ae');renderLibrary();
+}
+function delAb(pcId,abId){showCF('DELETE ABILITY','Remove this ability and all its variants?',()=>{const pc=PC.find(c=>c.id===pcId);if(pc)pc.abilities=pc.abilities.filter(a=>a.id!==abId);savePresets();renderLibrary();});}
+function delVariant(pcId,abId,varIdx){showCF('DELETE VARIANT','Remove this variant?',()=>{const pc=PC.find(c=>c.id===pcId);const ab=pc?.abilities.find(a=>a.id===abId);if(ab?.variants)ab.variants.splice(varIdx,1);savePresets();renderLibrary();});}
+function toggleCDLink(pcId,abId){
+  const pc=PC.find(c=>c.id===pcId);if(!pc)return;
+  const ab=pc.abilities.find(a=>a.id===abId);if(!ab)return;
+  ab.cdLinked=(ab.cdLinked===false)?true:false; // default true, toggle
+  savePresets();renderLibrary();
+}
+
+// ═══════════════════════════════════════════════
+// DMG TABS & ADVANCED DMG
+// ═══════════════════════════════════════════════
+function setTab(scope,t){
+  const pfx=scope;
+  document.querySelectorAll('#'+pfx+'-tabs .dt').forEach(el=>el.classList.toggle('on',el.dataset.t===t));
+  ['n','d','t'].forEach(s=>{const el=document.getElementById(pfx+'-dtf-'+s);if(el)el.classList.toggle('on',s===t);});
+  if(scope==='lm')lmTab=t;else aeTab=t;
+}
+function toggleAdv(scope,s){
+  const adv=document.getElementById(scope+'-adv-'+s);
+  const btn=document.getElementById(scope+'-advbtn-'+s);
+  if(!adv)return;
+  const open=adv.classList.toggle('on');
+  if(btn)btn.textContent=btn.textContent.replace(open?'▶':'▼',open?'▼':'▶');
+}
+function getLMBaseStat(){
+  const charList=lmMode.startsWith('battle')?bChars:chars;
+  const idx=parseInt(document.getElementById('lm-char').value)||0;
+  const c=charList[idx];if(!c?.presetId)return 0;return getBaseStat(c.presetId);
+}
+function updAdv(scope,s){
+  const p=scope+'-',cbs=scope==='lm'?getLMBaseStat():(PC.find(c=>c.id===aePCId)?.baseStat||0);
+  const bonus=parseFloat(document.getElementById(p+'stat-'+s).value)||0;
+  const mult=parseFloat(document.getElementById(p+'mult-'+s).value)||0;
+  const b1=parseFloat(document.getElementById(p+'b1-'+s).value)||0;
+  const b2=parseFloat(document.getElementById(p+'b2-'+s).value)||0;
+  const el=document.getElementById(p+'prev-'+s);if(!el)return;
+  const total=bonus+cbs;
+  if(total>0&&mult>0){
+    const r=Math.round(total*(mult/100)*(1+b1/100)*(1+b2/100));
+    const sStr=cbs>0?`(${cbs}+${bonus}=${total})`:`${total}`;
+    el.textContent=`= ${r}  [${sStr}×${mult}%${b1?'×(1+'+b1+'%)':''}${b2?'×(1+'+b2+'%)':''}]`;
+  } else el.textContent='';
+}
+function refreshAdvPrev(){['n','d','t'].forEach(s=>updAdv('lm',s));}
+function updDotPrev(scope){
+  const p=scope+'-';
+  const dmg=parseFloat(document.getElementById(p+'flat-t').value)||parseFloat(document.getElementById(p+'stat-t').value)||0;
+  const iv=parseFloat(document.getElementById(p+'ticki').value)||0;
+  const dur=parseFloat(document.getElementById(p+'tickd').value)||0;
+  const el=document.getElementById(p+'dot-prev');if(!el)return;
+  if(iv>0&&dur>0){const t=Math.floor(dur/iv);el.textContent=`${t} ticks`;}else el.textContent='';
+}
+
+// ═══════════════════════════════════════════════
+// LOG MODAL
+// ═══════════════════════════════════════════════
+function openLogModal(mode,src,charIdx,srcAb){
+  lmMode=mode;pendingAb=srcAb||null;
+  const isBattle=mode.startsWith('battle');
+  const charList=isBattle?bChars:chars;
+  fillCharSel(charList);
+  clearLM();setTab('lm','n');
+  document.getElementById('lm-title').textContent=mode.includes('reuse')?'REUSE ABILITY':'LOG ABILITY';
+  document.getElementById('lm-ok').textContent='LOG';
+  if(src){
+    if(charIdx>=0)document.getElementById('lm-char').value=charIdx;
+    document.getElementById('lm-name').value=src.name||'';
+    document.getElementById('lm-desc').value=src.desc||'';
+    document.getElementById('lm-cast').value=src.castTime||'';
+    document.getElementById('lm-cd').value=src.cooldown||'';
+    document.getElementById('lm-hit').value=src.hitType||'single';
+    setTab('lm',normDmgType(src.dmgType));
+    const s=normDmgType(src.dmgType);
+    if(src.dmgFlat!=null)document.getElementById('lm-flat-'+s).value=src.dmgFlat;
+    if((src.mult||0)>0||(src.stat||0)>0||(src.b1||0)>0||(src.b2||0)>0){
+      ['stat','mult','b1','b2'].forEach(k=>{const el=document.getElementById('lm-'+k+'-'+s);if(el)el.value=src[k]||0;});
+      const adv=document.getElementById('lm-adv-'+s);const btn=document.getElementById('lm-advbtn-'+s);
+      if(adv){adv.classList.add('on');if(btn)btn.textContent=btn.textContent.replace('▶','▼');}
+      updAdv('lm',s);
+    }
+    if(s==='d')document.getElementById('lm-delay').value=src.delay||0;
+    if(s==='t'){document.getElementById('lm-ticki').value=src.ticki||0;document.getElementById('lm-tickd').value=src.tickd||0;updDotPrev('lm');}
+    document.getElementById('lm-effn').value=src.effName||'';
+    document.getElementById('lm-effd').value=src.effDur||'';
+    document.getElementById('lm-stacks').checked=src.stacks||false;
+    const lmcc=document.getElementById('lm-cancrit');if(lmcc)lmcc.checked=src.canCrit||false;
+    const stundmgEl=document.getElementById('lm-stundmg');
+    if(stundmgEl)stundmgEl.value=src.stunDmg||'';
+  }
+  openOv('ov-log');
+}
+function clearLM(){
+  ['lm-name','lm-desc','lm-effn','lm-stundmg'].forEach(id=>document.getElementById(id).value='');
+  ['lm-flat-n','lm-flat-d','lm-flat-t','lm-cast','lm-cd','lm-delay','lm-ticki','lm-tickd','lm-effd',
+   'lm-stat-n','lm-mult-n','lm-b1-n','lm-b2-n','lm-stat-d','lm-mult-d','lm-b1-d','lm-b2-d',
+   'lm-stat-t','lm-mult-t','lm-b1-t','lm-b2-t'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['lm-prev-n','lm-prev-d','lm-prev-t','lm-dot-prev'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='';});
+  ['n','d','t'].forEach(s=>{
+    const adv=document.getElementById('lm-adv-'+s);const btn=document.getElementById('lm-advbtn-'+s);
+    if(adv)adv.classList.remove('on');if(btn&&btn.textContent.includes('▼'))btn.textContent=btn.textContent.replace('▼','▶');
+  });
+  document.getElementById('lm-stacks').checked=false;
+}
+function confirmLog(){
+  const ci=parseInt(document.getElementById('lm-char').value)||0;
+  const name=document.getElementById('lm-name').value.trim();if(!name){alert('Name required.');return;}
+  const isBattle=lmMode.startsWith('battle');
+  const charList=isBattle?bChars:chars;
+  const charObj=charList[ci]||charList[0];
+  const s=normDmgType(lmTab);
+  const flatRaw=document.getElementById('lm-flat-'+s)?.value??'';
+  const cbs=charObj.presetId?getBaseStat(charObj.presetId):0;
+  const entry={
+    id:isBattle?bLogId++:cLogId++,
+    char:charObj.name,name,
+    desc:document.getElementById('lm-desc').value.trim(),
+    castTime:parseFloat(document.getElementById('lm-cast').value)||0,
+    cooldown:parseFloat(document.getElementById('lm-cd').value)||0,
+    hitType:document.getElementById('lm-hit').value,
+    dmgType:s,
+    dmgFlat:flatRaw!==''?parseFloat(flatRaw):null,
+    stat:parseFloat(document.getElementById('lm-stat-'+s)?.value)||0,
+    mult:parseFloat(document.getElementById('lm-mult-'+s)?.value)||0,
+    b1:parseFloat(document.getElementById('lm-b1-'+s)?.value)||0,
+    b2:parseFloat(document.getElementById('lm-b2-'+s)?.value)||0,
+    delay:parseFloat(document.getElementById('lm-delay')?.value)||0,
+    ticki:parseFloat(document.getElementById('lm-ticki')?.value)||0,
+    tickd:parseFloat(document.getElementById('lm-tickd')?.value)||0,
+    effName:document.getElementById('lm-effn').value.trim(),
+    effDur:parseFloat(document.getElementById('lm-effd').value)||0,
+    stacks:document.getElementById('lm-stacks').checked,
+    cbs,timeAt:0,targets:null,totalBattleDmg:0,
+    resources:pendingAb?.resources||null,
+    abBaseId:pendingAb?.abBaseId||null,
+    varTag:pendingAb?.varTag||null,
+    cdKey:pendingAb?.cdKey||null,
+    stunDmg:parseFloat(document.getElementById('lm-stundmg')?.value)||0,
+    canCrit:pendingAb?.canCrit||false,
+    isCrit:false,  // set below
+    critMult:1     // set below
+  };
+  // Crit roll
+  if(entry.canCrit){
+    const didCrit=rollCrit(true,charObj);
+    if(didCrit){
+      entry.isCrit=true;
+      const{dmg:critDmgPct}=getCharCritStats(charObj);
+      entry.critMult=1+(critDmgPct/100);
+      // Apply crit multiplier to flat dmg if set, otherwise store multiplier for entryDmg
+      if(entry.dmgFlat!=null)entry.dmgFlat=Math.round(entry.dmgFlat*entry.critMult);
+      else entry.critApplied=true; // flag for entryDmg to apply
+    }
+  }
+  // Resource check
+  const short=checkRes(pendingAb,charObj);
+  if(short.length){
+    const lines=short.map(r=>`${r.name}: need ${r.need}, have ${r.have}`).join('\n');
+    showRW('Not enough resources:\n'+lines,()=>dispatch(entry,isBattle,charObj,true));
+    return;
+  }
+  dispatch(entry,isBattle,charObj,false);
+}
+function dispatch(entry,isBattle,charObj,forceRes){
+  applyRes(pendingAb,charObj,forceRes);
+  closeOv('ov-log');closePP();
+  if(isBattle&&entry.hitType==='single'){
+    pendingEntry=entry;openTargetPicker();
+  } else if(isBattle&&entry.hitType==='multi'){
+    const living=bEnemies.filter(e=>e.hp>0);
+    const rawDmg=entryDmg(entry);
+    entry.targets=living.map(e=>e.name);
+    let totalDealt=0;
+    living.forEach(e=>{
+      const eff=applyResistance(rawDmg,e);
+      e.hp=Math.max(0,e.hp-eff);
+      totalDealt+=eff;
+      applyStunDmg(e,entry.stunDmg||0);
+    });
+    entry.totalBattleDmg=totalDealt;
+    bLog.unshift(entry);recalcLog(bLog);checkStunExpiry();renderBattle();checkWin();
+  } else {
+    cLog.unshift(entry);recalcLog(cLog);renderApp();
+  }
+  pendingAb=null;
+}
+
+// ═══════════════════════════════════════════════
+// TARGET PICKER
+// ═══════════════════════════════════════════════
+function openTargetPicker(){
+  const list=document.getElementById('tgt-list');list.innerHTML='';
+  bEnemies.forEach((e,i)=>{
+    if(e.hp<=0)return;
+    const btn=document.createElement('button');btn.className='tgt-btn';
+    const res=e.res??0;const stunned=isEnemyStunned(e);
+    btn.innerHTML=`<div class="tgt-nm">${e.name}${stunned?` <span style="color:#f39c12">[STUNNED]</span>`:''}</div><div class="tgt-hp">${e.hp} / ${e.maxHp} HP${res!==0?` · RES ${res>0?'+':''}${res}%`:''}</div>`;
+    btn.onclick=()=>applyTarget(i);
+    list.appendChild(btn);
+  });
+  openOv('ov-target');
+}
+function applyTarget(i){
+  if(!pendingEntry)return;
+  const e=bEnemies[i];
+  const rawDmg=entryDmg(pendingEntry);
+  const eff=applyResistance(rawDmg,e);
+  pendingEntry.targets=[e.name];
+  pendingEntry.totalBattleDmg=eff;
+  e.hp=Math.max(0,e.hp-eff);
+  applyStunDmg(e,pendingEntry.stunDmg||0);
+  bLog.unshift(pendingEntry);recalcLog(bLog);checkStunExpiry();
+  closeOv('ov-target');pendingEntry=null;
+  renderBattle();checkWin();
+}
+
+// ═══════════════════════════════════════════════
+// REUSE
+// ═══════════════════════════════════════════════
+function reuseEntry(id){
+  const log=lmMode.startsWith('battle')?bLog:cLog;
+  const e=log.find(x=>x.id===id);if(!e)return;
+  const charList=lmMode.startsWith('battle')?bChars:chars;
+  const ci=charList.findIndex(c=>c.name===e.char);
+  const cdRem=getCDRem(e,log);
+  if(cdRem>0)showAlert(e.name+' has '+cdRem.toFixed(2)+'s left on cooldown.',()=>openLogModal(lmMode.startsWith('battle')?'battle-reuse':'reuse',e,ci,null));
+  else openLogModal(lmMode.startsWith('battle')?'battle-reuse':'reuse',e,ci,null);
+}
+
+// ═══════════════════════════════════════════════
+// PRESET PANEL (PP)
+// ═══════════════════════════════════════════════
+function openPP(charIdx,mode){
+  ppMode=mode;ppCharIdx=charIdx;
+  ppVarState={};
+  const charList=mode==='battle'?bChars:chars;
+  const charObj=charList[charIdx];
+  if(!charObj?.presetId)return;
+  const pc=PC.find(c=>c.id===charObj.presetId);if(!pc)return;
+  const curLog=mode==='battle'?bLog:cLog;
+  document.getElementById('pp-title').textContent=pc.name.toUpperCase()+' — ABILITIES';
+  // Render crit section
+  renderPPCrit(pc,charObj);
+  const listEl=document.getElementById('pp-list');listEl.innerHTML='';
+  // Resources header
+  const ar=activeRes(pc);
+  if(ar.length){
+    const hdr=document.createElement('div');hdr.className='pp-res-hdr';
+    hdr.innerHTML='<div class="pp-res-title">RESOURCES</div><div id="pp-res-body"></div>';
+    listEl.appendChild(hdr);
+    renderPPRes(pc,charObj.presetId);
+  }
+  // Abilities
+  if(!pc.abilities.length){
+    const d=document.createElement('div');d.className='pp-no-ab';d.textContent='No abilities saved.';listEl.appendChild(d);
+  } else {
+    pc.abilities.forEach(ab=>{
+      renderPPAbRow(ab,pc,charObj,charIdx,curLog,ar,listEl);
+    });
+  }
+  document.getElementById('pp').classList.add('on');
+}
+
+function renderPPAbRow(ab,pc,charObj,charIdx,curLog,ar,listEl){
+  const varIdx=ppVarState[ab.id]??-1; // -1=base
+  const hasVars=(ab.variants||[]).length>0;
+  // Get active data (base or variant)
+  const src=varIdx===-1?ab:ab.variants[varIdx];
+  if(!src)return;
+  const totalVariants=1+(ab.variants||[]).length;
+  const cycleLabel=varIdx===-1?'BASE':(src.tag||'VAR '+(varIdx+1));
+  const displayName=src.name||ab.name;
+  // Compute dmg/cd for active variant
+  const td=abDmg(src,pc.id);
+  const dmgType=normDmgType(src.dmgType);
+  const linked=ab.cdLinked!==false;
+  const cdKey=linked?ab.id:`${ab.id}_${varIdx}`;
+  const recent=curLog.find(e=>e.char===charObj.name&&e.cdKey===cdKey);
+  const cdRem=recent?getCDRem(recent,curLog):0;
+  const cdOk=cdRem<=0;
+  let typeTag='';
+  if(dmgType==='d')typeTag=`<span style="color:#e67e22"> DELAYED</span>`;
+  if(dmgType==='t'){const tk=src.ticki>0?Math.floor(src.tickd/src.ticki):0;typeTag=`<span style="color:#8e44ad"> DOT×${tk}</span>`;}
+  const htTag=(src.hitType||'single')==='multi'?`<span style="color:#5dade2"> [MULTI]</span>`:`<span style="color:var(--muted)"> [SINGLE]</span>`;
+  let resPreview='';
+  if(src.resources&&ar.length){
+    const parts=[];
+    (src.resources||[]).forEach((r,i)=>{if(!r||!r.mode||!r.amount)return;const rd=pc.resources?.[i];if(!rd?.name)return;parts.push(`<span style="color:${r.mode==='gain'?'var(--green)':'var(--red)'}">${r.mode==='gain'?'+':'-'}${r.amount} ${rd.name}</span>`);});
+    if(parts.length)resPreview=`<div style="font-family:var(--mono);font-size:10px;margin-top:3px">${parts.join(' · ')}</div>`;
+  }
+  const row=document.createElement('div');row.className='pp-row';row.id='pp-ab-row-'+ab.id;
+  row.innerHTML=`
+    <div style="flex:1;min-width:0">
+      <div class="pp-ab-nm">${safe(displayName)}${hasVars?`<span class="var-badge">${safe(cycleLabel)}</span>`:''}${typeTag}${htTag}${src.canCrit?`<span class="crit-tag">CRIT</span>`:''}${src.stunDmg?` <span style="color:#f39c12;font-size:9px;border:1px solid #f39c12;padding:1px 4px">STUN ${src.stunDmg}</span>`:''}</div>
+      <div class="pp-ab-meta">DMG <span style="color:var(--text)">${td}</span> · CAST <span style="color:var(--text)">${src.castTime}s</span> · CD <span style="color:var(--text)">${src.cooldown}s</span>${src.effName?` · ⬡ ${safe(src.effName)}`:''}</div>
+      ${src.desc?`<div class="pp-ab-meta" style="font-style:italic;white-space:pre-wrap;word-break:break-word">${safe(src.desc)}</div>`:''}
+      ${resPreview}
+    </div>
+    <div class="pp-right">
+      ${hasVars?`<button class="cycle-btn" onclick="cyclePPVar(${ab.id},${charIdx})">⟳ CYCLE</button>`:''}
+      <div class="cdb ${cdOk?'rdy':'cool'}">${cdOk?'CD READY':'CD '+cdRem.toFixed(2)+'s'}</div>
+      <button class="btn btn-ys btn-xs" onclick="usePPAb(${ab.id},${charIdx})">USE</button>
+    </div>
+  `;
+  listEl.appendChild(row);
+}
+
+function cyclePPVar(abId,charIdx){
+  const charList=ppMode==='battle'?bChars:chars;
+  const charObj=charList[charIdx];if(!charObj?.presetId)return;
+  const pc=PC.find(c=>c.id===charObj.presetId);if(!pc)return;
+  const ab=pc.abilities.find(a=>a.id===abId);if(!ab)return;
+  const total=1+(ab.variants||[]).length;
+  const cur=ppVarState[abId]??-1;
+  ppVarState[abId]=cur+1>=total-1?-1:cur+1; // cycle: -1,0,1,...,n-1 then back to -1
+  // Re-render just this row
+  const curLog=ppMode==='battle'?bLog:cLog;
+  const ar=activeRes(pc);
+  const oldRow=document.getElementById('pp-ab-row-'+abId);
+  if(oldRow){
+    const tmp=document.createElement('div');
+    renderPPAbRow(ab,pc,charObj,charIdx,curLog,ar,tmp);
+    oldRow.replaceWith(tmp.firstChild);
+  }
+}
+function renderPPCrit(pc,charObj){
+  const sec=document.getElementById('pp-crit-section');
+  if(!sec)return;
+  const hasStats=(pc.critRate!=null&&pc.critRate>0)||(pc.critDmg!=null&&pc.critDmg>0);
+  if(!hasStats){sec.style.display='none';return;}
+  sec.style.display='block';
+  const pid=charObj.presetId;
+  const bonus=sCrit[pid]||{bonusCR:0,bonusCD:0};
+  const finalCR=(pc.critRate||0)+(bonus.bonusCR||0);
+  const finalCD=(pc.critDmg||0)+(bonus.bonusCD||0);
+  sec.innerHTML=`
+    <div style="font-family:var(--mono);font-size:10px;color:var(--yd);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">CRIT STATS</div>
+    <div class="crit-stat">Base: Crit Rate <span>${pc.critRate||0}%</span> · Crit DMG <span>${pc.critDmg||0}%</span></div>
+    <div class="crit-row">
+      <div>
+        <div class="flbl">Bonus Crit Rate %</div>
+        <input type="number" id="pp-bcr" value="${bonus.bonusCR||''}" placeholder="0"
+          style="font-family:var(--mono);font-size:12px;padding:5px 7px;background:var(--bg);border:1px solid var(--border);color:var(--text);width:100%"
+          oninput="updateCritBonus(${pid})">
+      </div>
+      <div>
+        <div class="flbl">Bonus Crit DMG %</div>
+        <input type="number" id="pp-bcd" value="${bonus.bonusCD||''}" placeholder="0"
+          style="font-family:var(--mono);font-size:12px;padding:5px 7px;background:var(--bg);border:1px solid var(--border);color:var(--text);width:100%"
+          oninput="updateCritBonus(${pid})">
+      </div>
+    </div>
+    <div class="crit-stat" id="pp-crit-final">Final: Crit Rate <span>${finalCR.toFixed(1)}%</span> · Crit DMG <span>${finalCD.toFixed(1)}%</span></div>
+  `;
+}
+
+function updateCritBonus(pid){
+  const bcr=parseFloat(document.getElementById('pp-bcr')?.value)||0;
+  const bcd=parseFloat(document.getElementById('pp-bcd')?.value)||0;
+  sCrit[pid]={bonusCR:bcr,bonusCD:bcd};
+  const pc=PC.find(p=>p.id===pid);
+  const finalCR=(pc?.critRate||0)+bcr;
+  const finalCD=(pc?.critDmg||0)+bcd;
+  const fin=document.getElementById('pp-crit-final');
+  if(fin)fin.innerHTML=`Final: Crit Rate <span style="color:var(--y)">${finalCR.toFixed(1)}%</span> · Crit DMG <span style="color:var(--y)">${finalCD.toFixed(1)}%</span>`;
+}
+
+function renderPPRes(pc,pid){
+  const body=document.getElementById('pp-res-body');if(!body)return;
+  const ar=activeRes(pc);body.innerHTML='';
+  ar.forEach(r=>{
+    const cur=getRes(pid,r.idx);
+    const valStr=r.max!=null?`${cur} / ${r.max}`:`${cur}`;
+    const item=document.createElement('div');item.className='pp-res-item';
+    item.innerHTML=`
+      <span class="pp-res-lbl">${r.name}</span>
+      <span class="pp-res-cnt" id="pprc-${r.idx}">${valStr}</span>
+      <div class="pp-res-btns">
+        <button onclick="adjRes(${pid},${r.idx},-1)">−</button>
+        <input type="number" id="ppri-${r.idx}" value="1" min="1">
+        <button onclick="adjRes(${pid},${r.idx},1)">+</button>
+      </div>
+    `;
+    body.appendChild(item);
+  });
+}
+function adjRes(pid,idx,dir){
+  const amt=parseInt(document.getElementById('ppri-'+idx)?.value)||1;
+  setRes(pid,idx,getRes(pid,idx)+dir*amt);
+  const pc=PC.find(p=>p.id===pid);renderPPRes(pc,pid);
+  if(ppMode==='battle')renderBattleStats();else renderCalcStats();
+}
+function usePPAb(abId,charIdx){
+  const charList=ppMode==='battle'?bChars:chars;
+  const charObj=charList[charIdx];if(!charObj?.presetId)return;
+  const pc=PC.find(c=>c.id===charObj.presetId);if(!pc)return;
+  const ab=pc.abilities.find(a=>a.id===abId);if(!ab)return;
+  const varIdx=ppVarState[abId]??-1;
+  const src=varIdx===-1?ab:(ab.variants||[])[varIdx];
+  if(!src)return;
+  const curLog=ppMode==='battle'?bLog:cLog;
+  // cdKey: linked = abBaseId (shared), unlinked = abBaseId+varIdx (per variant)
+  const linked=ab.cdLinked!==false;
+  const cdKey=linked?abId:`${abId}_${varIdx}`;
+  const recent=curLog.find(e=>e.char===charObj.name&&e.cdKey===cdKey);
+  const cdRem=recent?getCDRem(recent,curLog):0;
+  const srcWithMeta={...src,abBaseId:abId,cdKey,varTag:varIdx===-1?null:(src.tag||'VAR '+(varIdx+1))};
+  const doOpen=()=>openLogModal(ppMode==='battle'?'battle-reuse':'reuse',srcWithMeta,charIdx,srcWithMeta);
+  if(cdRem>0)showAlert((src.name||ab.name)+' has '+cdRem.toFixed(2)+'s left on cooldown.',doOpen);
+  else doOpen();
+}
+
+// ═══════════════════════════════════════════════
+// RENDER HELPERS
+// ═══════════════════════════════════════════════
+function makeCharCard(charObj,idx,dmg,totalDmg,castTime,mode){
+  const isP=charObj.presetId!==null;
+  const pct=totalDmg>0?((dmg/totalDmg)*100).toFixed(1):'0.0';
+  const cdps=castTime>0?(dmg/castTime).toFixed(2):'0.00';
+  const card=document.createElement('div');
+  card.className='csc'+(isP?' preset':'');
+  card.innerHTML=`
+    <div class="cn">${charObj.name}${isP?`<span class="pbadge">#${charObj.presetId}</span>`:''}</div>
+    <div class="cr"><span>DMG</span><strong>${dmg}</strong></div>
+    <div class="cr"><span>%TEAM</span><strong>${pct}%</strong></div>
+    <div class="cr"><span>CAST</span><strong>${castTime.toFixed(2)}s</strong></div>
+    <div class="cr"><span>DPS</span><strong>${cdps}</strong></div>
+    ${isP?'<div class="tap-hint">TAP FOR ABILITIES + RESOURCES</div>':''}
+  `;
+  // Resource bar
+  if(isP){
+    const pc=PC.find(p=>p.id===charObj.presetId);
+    const ar=activeRes(pc);
+    if(ar.length){
+      const rb=document.createElement('div');rb.className='res-bar';
+      ar.forEach(r=>{
+        const cur=getRes(charObj.presetId,r.idx);
+        const v=r.max!=null?`${cur}/${r.max}`:`${cur}`;
+        rb.innerHTML+=`<div class="res-row"><span class="res-nm">${r.name}</span><span class="res-vl">${v}</span></div>`;
+      });
+      card.appendChild(rb);
+    }
+    card.onclick=()=>openPP(idx,mode);
+  }
+  return card;
+}
+function makeLogEntry(entry,log,isB,editFn,delFn,reuseFn,charList){
+  const cdRem=getCDRem(entry,log);
+  const tdmg=isB?(entry.totalBattleDmg||0):entryDmg(entry);
+  const baseDmg=entryDmg(entry);
+  const isAdv=entry.dmgFlat===null&&(entry.stat||entry.mult);
+  const advLine=isAdv?` <span style="color:var(--muted);font-size:10px">[${entry.cbs||0}+${entry.stat}=${entry.stat+(entry.cbs||0)} ×${entry.mult}%${entry.b1?' +B'+entry.b1+'%':''}${entry.b2?' +B'+entry.b2+'%':''}]</span>`:'';
+  let dmtLabel='';
+  if(entry.dmgType==='d')dmtLabel=`<div class="le-dmt dmt-d">⏱ DELAYED +${entry.delay}s → ${baseDmg} dmg${advLine}</div>`;
+  if(entry.dmgType==='t'){const tk=entry.ticki>0?Math.floor(entry.tickd/entry.ticki):0;dmtLabel=`<div class="le-dmt dmt-dot">◈ DOT ${baseDmg}/tick ×${tk}${isB?' per target':''}${advLine}</div>`;}
+  const tgtStr=isB&&entry.targets?.length?(entry.hitType==='multi'?'ALL: '+entry.targets.join(', '):'→ '+entry.targets[0]):'';
+  const htTag=`<span style="font-size:10px;color:${entry.hitType==='multi'?'#5dade2':'var(--muted)'}">[${entry.hitType==='multi'?'MULTI':'SINGLE'}]</span>`;
+  const charOpts=(charList||[]).map((c,i)=>`<option value="${i}" ${c.name===entry.char?'selected':''}>${c.name}</option>`).join('');
+  const dmtOpts=['n','d','t'].map(t=>`<option value="${t}" ${entry.dmgType===t?'selected':''}>${t==='n'?'NORMAL':t==='d'?'DELAYED':'DOT'}</option>`).join('');
+  const hitOpts=`<option value="single" ${entry.hitType!=='multi'?'selected':''}>Single</option><option value="multi" ${entry.hitType==='multi'?'selected':''}>Multi</option>`;
+  const el=document.createElement('div');
+  el.className='le'+(isB?' ble':'');el.id='le-'+entry.id;
+  el.innerHTML=`
+    <div class="le-head">
+      <div class="le-l">
+        <div class="le-char">${entry.char}</div>
+        <div class="le-name">${entry.name}${entry.varTag?`<span class="var-badge">${safe(entry.varTag)}</span>`:''}${entry.isCrit?`<span class="crit-tag">CRIT</span>`:''} ${htTag}</div>
+        ${tgtStr?`<div class="le-tgt">${tgtStr}</div>`:''}
+      </div>
+      <div class="cdb ${cdRem<=0?'rdy':'cool'}">${cdRem<=0?'CD READY':'CD '+cdRem.toFixed(2)+'s'}</div>
+    </div>
+    <div class="le-meta">
+      <div class="mp dmg">DMG <span>${tdmg}</span>${isAdv&&entry.dmgType==='n'?advLine:''}</div>
+      <div class="mp">CAST <span>${entry.castTime}s</span></div>
+      <div class="mp">CD <span>${parseFloat(entry.cooldown)||0}s</span></div>
+      <div class="mp">@ <span>${entry.timeAt.toFixed(2)}s</span></div>
+    </div>
+    ${entry.desc?`<div class="le-desc">${safe(entry.desc)}</div>`:''}
+    ${dmtLabel}
+    ${entry.effName?`<div class="le-eff">⬡ ${entry.effName}${entry.effDur?' — '+entry.effDur+'s':''}${entry.stacks?' [STACKS]':' [REFRESH]'}</div>`:''}
+    <div class="le-acts">
+      <button class="btn btn-ys btn-xs" onclick="reuseBtn(${entry.id},${isB})">USE AGAIN</button>
+      <button class="btn btn-gh btn-xs" onclick="toggleEdit(${entry.id})">EDIT</button>
+      <button class="btn btn-r btn-xs" onclick="deleteEntry(${entry.id},${isB})">DELETE</button>
+    </div>
+    <div class="ef" id="ef-${entry.id}">
+      <div class="eg">
+        <div class="full"><label>Character</label><select class="e-char">${charOpts}</select></div>
+        <div class="full"><label>Ability Name</label><input type="text" class="e-nm" value="${entry.name}"></div>
+        <div class="full"><label>Description</label><textarea class="e-desc">${safe(entry.desc||'')}</textarea></div>
+        <div><label>Cast Time (s)</label><input type="number" class="e-cast" value="${entry.castTime}" step="0.1"></div>
+        <div><label>Cooldown (s)</label><input type="number" class="e-cd" value="${entry.cooldown}" step="0.1"></div>
+        <div><label>Damage Type</label><select class="e-dmt">${dmtOpts}</select></div>
+        <div><label>Hit Type</label><select class="e-hit">${hitOpts}</select></div>
+        <div class="full"><label>Flat DMG / per tick (empty = advanced)</label><input type="number" class="e-flat" value="${entry.dmgFlat!=null?entry.dmgFlat:''}"></div>
+        <div><label>Stat (bonus)</label><input type="number" class="e-stat" value="${entry.stat||0}"></div>
+        <div><label>Mult %</label><input type="number" class="e-mult" value="${entry.mult||0}"></div>
+        <div><label>Buff 1 %</label><input type="number" class="e-b1" value="${entry.b1||0}"></div>
+        <div><label>Buff 2 %</label><input type="number" class="e-b2" value="${entry.b2||0}"></div>
+        <div><label>Delay (s)</label><input type="number" class="e-delay" value="${entry.delay||0}" step="0.1"></div>
+        <div><label>DoT Interval (s)</label><input type="number" class="e-ticki" value="${entry.ticki||0}" step="0.1"></div>
+        <div><label>DoT Duration (s)</label><input type="number" class="e-tickd" value="${entry.tickd||0}" step="0.1"></div>
+        <div><label>Effect Name</label><input type="text" class="e-effn" value="${entry.effName||''}"></div>
+        <div><label>Effect Duration (s)</label><input type="number" class="e-effd" value="${entry.effDur||0}" step="0.1"></div>
+        <div class="full"><div class="cb-row"><input type="checkbox" class="e-stacks" ${entry.stacks?'checked':''}><label>Effect stacks</label></div></div>
+      </div>
+      <div class="ea">
+        <button class="btn btn-g btn-xs" onclick="saveEdit(${entry.id},${isB})">SAVE</button>
+        <button class="btn btn-gh btn-xs" onclick="toggleEdit(${entry.id})">CANCEL</button>
+      </div>
+    </div>
+  `;
+  return el;
+}
+function reuseBtn(id,isB){
+  lmMode=isB?'battle-reuse':'reuse';
+  const log=isB?bLog:cLog;
+  const e=log.find(x=>x.id===id);if(!e)return;
+  const charList=isB?bChars:chars;
+  const ci=charList.findIndex(c=>c.name===e.char);
+  const cdRem=getCDRem(e,log);
+  // Pass e as srcAb so resource gain/cost and variant tracking applies on confirm
+  const doOpen=()=>openLogModal(lmMode,e,ci,{...e,abBaseId:e.abBaseId,varTag:e.varTag,cdKey:e.cdKey});
+  if(cdRem>0)showAlert(e.name+' has '+cdRem.toFixed(2)+'s on cooldown.',doOpen);
+  else doOpen();
+}
+function toggleEdit(id){
+  const ef=document.getElementById('ef-'+id);const le=document.getElementById('le-'+id);
+  if(!ef||!le)return;ef.classList.toggle('open');le.classList.toggle('editing');
+}
+function saveEdit(id,isB){
+  const log=isB?bLog:cLog;
+  const entry=log.find(e=>e.id===id);if(!entry)return;
+  const el=document.getElementById('le-'+id);
+  const charList=isB?bChars:chars;
+  const ci=parseInt(el.querySelector('.e-char').value);
+  entry.char=(charList[ci]||charList[0]).name;
+  entry.name=el.querySelector('.e-nm').value.trim()||entry.name;
+  entry.desc=el.querySelector('.e-desc').value.trim();
+  entry.castTime=parseFloat(el.querySelector('.e-cast').value)||0;
+  entry.cooldown=parseFloat(el.querySelector('.e-cd').value)||0;
+  entry.dmgType=el.querySelector('.e-dmt').value;
+  entry.hitType=el.querySelector('.e-hit').value;
+  const fr=el.querySelector('.e-flat').value;
+  entry.dmgFlat=fr!==''?parseFloat(fr):null;
+  entry.stat=parseFloat(el.querySelector('.e-stat').value)||0;
+  entry.mult=parseFloat(el.querySelector('.e-mult').value)||0;
+  entry.b1=parseFloat(el.querySelector('.e-b1').value)||0;
+  entry.b2=parseFloat(el.querySelector('.e-b2').value)||0;
+  entry.delay=parseFloat(el.querySelector('.e-delay').value)||0;
+  entry.ticki=parseFloat(el.querySelector('.e-ticki').value)||0;
+  entry.tickd=parseFloat(el.querySelector('.e-tickd').value)||0;
+  entry.effName=el.querySelector('.e-effn').value.trim();
+  entry.effDur=parseFloat(el.querySelector('.e-effd').value)||0;
+  entry.stacks=el.querySelector('.e-stacks').checked;
+  if(isB){recalcLog(bLog);recomputeHP();renderBattle();}
+  else{recalcLog(cLog);renderApp();}
+}
+function deleteEntry(id,isB){
+  if(isB){const i=bLog.findIndex(e=>e.id===id);if(i>=0){bLog.splice(i,1);recalcLog(bLog);recomputeHP();renderBattle();}}
+  else{const i=cLog.findIndex(e=>e.id===id);if(i>=0){cLog.splice(i,1);recalcLog(cLog);renderApp();}}
+}
+function recomputeHP(){
+  // Reset HP and stun state
+  bEnemies.forEach(e=>{e.hp=e.maxHp;e.stunCur=e.stunMax??null;e.stunStart=null;});
+  // Replay log oldest-first
+  for(let i=bLog.length-1;i>=0;i--){
+    const entry=bLog[i];const rawDmg=entryDmg(entry);
+    (entry.targets||[]).forEach(tn=>{
+      const en=bEnemies.find(e=>e.name===tn);if(!en)return;
+      const eff=applyResistance(rawDmg,en);
+      en.hp=Math.max(0,en.hp-eff);
+      applyStunDmg(en,entry.stunDmg||0);
+    });
+    entry.totalBattleDmg=rawDmg*(entry.targets?.length||1);
+    checkStunExpiry();
+  }
+  if(bEnemies.some(e=>e.hp>0))bOver=false;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER CALC
+// ═══════════════════════════════════════════════
+function renderApp(){renderCalcStats();renderCalcLog();renderCalcEffects();}
+function renderCalcStats(){
+  const tt=logTotalTime(cLog);
+  const totalDmg=cLog.reduce((s,e)=>s+entryDmg(e),0);
+  document.getElementById('s-time').textContent=tt.toFixed(2)+'s';
+  document.getElementById('s-dmg').textContent=totalDmg;
+  document.getElementById('s-dps').textContent=(tt>0?totalDmg/tt:0).toFixed(2);
+  const grid=document.getElementById('csg');grid.innerHTML='';
+  chars.forEach((c,i)=>{
+    const entries=cLog.filter(e=>e.char===c.name);
+    const dmg=entries.reduce((s,e)=>s+entryDmg(e),0);
+    const cast=entries.reduce((s,e)=>s+e.castTime,0);
+    grid.appendChild(makeCharCard(c,i,dmg,totalDmg,cast,'calc'));
+  });
+}
+function renderCalcLog(){
+  const area=document.getElementById('log-area');
+  if(!cLog.length){area.innerHTML='<div class="empty-log">// no abilities logged yet</div>';return;}
+  area.innerHTML='';
+  cLog.forEach(e=>area.appendChild(makeLogEntry(e,cLog,false,null,null,null,chars)));
+}
+function renderCalcEffects(){
+  const fx=getActiveEffects(cLog);const el=document.getElementById('fx-list');
+  el.innerHTML=fx.length?fx.map(f=>`<span class="fx-chip">${f.name} ${f.stacks>1?'×'+f.stacks+' ':''}${f.rem.toFixed(1)}s</span>`).join(''):'<span style="font-family:var(--mono);font-size:11px;color:var(--muted)">none</span>';
+}
+
+// ═══════════════════════════════════════════════
+// RENDER BATTLE
+// ═══════════════════════════════════════════════
+function renderBattle(){renderEnemyGrid();renderBattleLog();renderBattleStats();renderBattleEffects();renderBattleTimer();}
+function renderEnemyGrid(){
+  const grid=document.getElementById('enemy-grid');grid.innerHTML='';
+  bEnemies.forEach((e,i)=>{
+    const pct=e.maxHp>0?(e.hp/e.maxHp)*100:0;
+    const dead=e.hp<=0;
+    const stunned=!dead&&isEnemyStunned(e);
+    const stunRem=stunned?stunRemaining(e):0;
+    const activeRes=getEnemyRes(e);
+    const hasStun=e.stunMax!=null;
+    const stunPct=hasStun&&e.stunMax>0?((e.stunCur??e.stunMax)/e.stunMax)*100:100;
+    const card=document.createElement('div');
+    card.className='ec'+(dead?' dead':'')+(stunned?' stunned':'');
+    card.innerHTML=`
+      <div class="en">${e.name}</div>
+      <div class="ehp">${dead?'DEAD':e.hp+' / '+e.maxHp}</div>
+      <div class="hpw"><div class="hpb${pct>50?'':pct>25?' mid':' low'}" style="width:${pct}%"></div></div>
+      ${dead?'<div class="dead-lbl">DEFEATED</div>':''}
+      ${stunned?`<div class="stun-tag">⚡ STUNNED ${stunRem.toFixed(1)}s</div>`:''}
+      ${hasStun&&!dead&&!stunned?`<div class="stun-bar-wrap"><div class="stun-bar" style="width:${stunPct}%"></div></div><div style="font-family:var(--mono);font-size:9px;color:#f39c12;margin-top:1px">${(e.stunCur??e.stunMax).toFixed(0)}/${e.stunMax} STUN</div>`:''}
+      ${!dead&&activeRes!==0?`<div class="res-tag">RES ${activeRes>0?'+':''}${activeRes}%${stunned?' (stunned)':''}</div>`:''}
+    `;
+    if(!dead)card.onclick=()=>openEnemyEditor(i);
+    grid.appendChild(card);
+  });
+}
+function renderBattleLog(){
+  const area=document.getElementById('battle-log');
+  if(!bLog.length){area.innerHTML='<div class="empty-log">// no actions yet</div>';return;}
+  area.innerHTML='';
+  bLog.forEach(e=>area.appendChild(makeLogEntry(e,bLog,true,null,null,null,bChars)));
+}
+function renderBattleStats(){
+  const tt=logTotalTime(bLog);
+  const totalDmg=bLog.reduce((s,e)=>s+(e.totalBattleDmg||0),0);
+  const grid=document.getElementById('bcsg');grid.innerHTML='';
+  const summary=document.createElement('div');
+  summary.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;';
+  [['Time',tt.toFixed(2)+'s'],['DMG',totalDmg],['DPS',(tt>0?totalDmg/tt:0).toFixed(2)]].forEach(([l,v])=>{
+    const s=document.createElement('div');
+    s.style.cssText='font-family:var(--mono);font-size:11px;color:var(--y);background:var(--bg);border:1px solid var(--border);padding:3px 9px;';
+    s.textContent=l+': '+v;grid.appendChild(s);
+  });
+  const row=document.createElement('div');row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;';
+  bChars.forEach((c,i)=>{
+    const entries=bLog.filter(e=>e.char===c.name);
+    const dmg=entries.reduce((s,e)=>s+(e.totalBattleDmg||0),0);
+    const cast=entries.reduce((s,e)=>s+e.castTime,0);
+    row.appendChild(makeCharCard(c,i,dmg,totalDmg,cast,'battle'));
+  });
+  grid.appendChild(row);
+}
+function renderBattleEffects(){
+  const fx=getActiveEffects(bLog);const el=document.getElementById('bfx-list');
+  el.innerHTML=fx.length?fx.map(f=>`<span class="fx-chip">${f.name} ${f.stacks>1?'×'+f.stacks+' ':''}${f.rem.toFixed(1)}s</span>`).join(''):'<span style="font-family:var(--mono);font-size:11px;color:var(--muted)">none</span>';
+}
+function renderBattleTimer(){
+  const el=document.getElementById('btimer');
+  if(!bTimerTotal){el.textContent='∞';el.className='timer';return;}
+  const elapsed=logTotalTime(bLog);
+  const left=Math.max(0,bTimerTotal-elapsed);
+  el.textContent=left.toFixed(2)+'s';
+  el.className='timer'+(left<=10?' urgent':'');
+  if(left<=0&&!bOver)triggerLose();
+}
+
+// ═══════════════════════════════════════════════
+// WIN / LOSE
+// ═══════════════════════════════════════════════
+function checkWin(){
+  if(bOver||!bEnemies.every(e=>e.hp<=0))return;
+  bOver=true;
+  const tt=logTotalTime(bLog);
+  const totalDmg=bLog.reduce((s,e)=>s+(e.totalBattleDmg||0),0);
+  const box=document.getElementById('result-box');box.className='result-box';
+  document.getElementById('result-title').textContent='⚔ VICTORY';
+  document.getElementById('result-msg').textContent=`All enemies defeated!\n\nTime: ${tt.toFixed(2)}s\nTotal DMG: ${totalDmg}`;
+  openOv('ov-result');
+}
+function triggerLose(){
+  if(bOver)return;bOver=true;
+  const remaining=bEnemies.filter(e=>e.hp>0).length;
+  const totalDmg=bLog.reduce((s,e)=>s+(e.totalBattleDmg||0),0);
+  const box=document.getElementById('result-box');box.className='result-box lose';
+  document.getElementById('result-title').textContent='✕ DEFEAT';
+  document.getElementById('result-msg').textContent=`Time ran out!\n\n${remaining} enem${remaining===1?'y':'ies'} still alive.\nTotal DMG dealt: ${totalDmg}`;
+  openOv('ov-result');
+}
+
+// ═══════════════════════════════════════════════
+// RESET / END
+// ═══════════════════════════════════════════════
+function doReset(){
+  cLog=[];cLogId=1;sRes={};sCrit={};initRes(chars);
+  closeOv('ov-reset');renderApp();
+}
+function goSetup(){
+  cLog=[];cLogId=1;chars=[];sRes={};sCrit={};
+  closeOv('ov-reset');
+  document.getElementById('app').style.display='none';
+  document.getElementById('setup').style.display='flex';
+  renderLibrary();
+}
+function endBattle(){
+  bLog=[];bLogId=1;bChars=[];bEnemies=[];bOver=false;sRes={};sCrit={};
+  closeOv('ov-breset');
+  document.getElementById('battle').style.display='none';
+  document.getElementById('setup').style.display='flex';
+  renderLibrary();
+}
+
+// ═══════════════════════════════════════════════
+// ENEMY EDITOR
+// ═══════════════════════════════════════════════
+let eeIdx=null; // index into bEnemies being edited
+
+function openEnemyEditor(idx){
+  if(bEnemies[idx]?.hp<=0)return; // don't edit dead enemies
+  eeIdx=idx;
+  const e=bEnemies[idx];
+  document.getElementById('ee-title').textContent='EDIT: '+e.name.toUpperCase();
+  document.getElementById('ee-hp').value=e.hp;
+  document.getElementById('ee-res').value=e.res??'';
+  document.getElementById('ee-sres').value=e.sRes??'';
+  document.getElementById('ee-smmax').value=e.stunMax??'';
+  document.getElementById('ee-sdur').value=e.stunDur??'';
+  openOv('ov-enemy');
+}
+
+function saveEnemyEdit(){
+  const e=bEnemies[eeIdx];if(!e)return;
+  const newHp=parseInt(document.getElementById('ee-hp').value);
+  e.hp=Math.max(0,Math.min(e.maxHp,isNaN(newHp)?e.hp:newHp));
+  const resRaw=document.getElementById('ee-res').value;
+  const sResRaw=document.getElementById('ee-sres').value;
+  e.res=resRaw!==''?parseFloat(resRaw):null;
+  e.sRes=sResRaw!==''?parseFloat(sResRaw):null;
+  const smRaw=document.getElementById('ee-smmax').value;
+  const sdRaw=document.getElementById('ee-sdur').value;
+  const newMax=smRaw!==''?parseFloat(smRaw):null;
+  // If stun meter newly set, init current meter
+  if(newMax!=null&&e.stunMax==null)e.stunCur=newMax;
+  else if(newMax!=null)e.stunCur=Math.min(e.stunCur??newMax,newMax);
+  e.stunMax=newMax;
+  e.stunDur=sdRaw!==''?parseFloat(sdRaw):null;
+  closeOv('ov-enemy');
+  renderBattle();
+}
+
+// Get active resistance for an enemy
+function getEnemyRes(e){
+  if(isEnemyStunned(e))return e.sRes??0;
+  return e.res??0;
+}
+
+// Is enemy currently stunned?
+function isEnemyStunned(e){
+  if(!e.stunStart&&e.stunStart!==0)return false;
+  const elapsed=logTotalTime(bLog)-e.stunStart;
+  return elapsed<(e.stunDur||0);
+}
+
+// Remaining stun duration
+function stunRemaining(e){
+  if(!isEnemyStunned(e))return 0;
+  return Math.max(0,(e.stunDur||0)-(logTotalTime(bLog)-e.stunStart));
+}
+
+// Apply stun damage to an enemy (only if not already stunned)
+function applyStunDmg(e,stunDmg){
+  if(!e.stunMax||e.stunDur==null||stunDmg<=0)return;
+  if(isEnemyStunned(e))return; // already stunned, ignore
+  e.stunCur=Math.max(0,(e.stunCur??e.stunMax)-stunDmg);
+  if(e.stunCur<=0){
+    // Trigger stun
+    e.stunStart=logTotalTime(bLog);
+    e.stunCur=0;
+  }
+}
+
+// After recalc, check if any stun durations have expired and reset them
+function checkStunExpiry(){
+  const tt=logTotalTime(bLog);
+  bEnemies.forEach(e=>{
+    if(e.stunStart==null)return;
+    if(tt-e.stunStart>=(e.stunDur||0)){
+      // Stun expired — reset
+      e.stunStart=null;
+      e.stunCur=e.stunMax;
+    }
+  });
+}
+
+// Apply resistance to damage value
+function applyResistance(rawDmg,e){
+  const res=getEnemyRes(e);
+  if(!res)return rawDmg;
+  return Math.round(rawDmg*(1-res/100));
+}
+
+// ═══════════════════════════════════════════════
+// NOTES
+// ═══════════════════════════════════════════════
+const NOTE_KEY='dmgcalc_notes';
+let notes=[];         // [{id,name,content}]
+let curNoteId=0;      // currently selected note id
+let nextNoteId=1;
+
+function loadNotes(){
+  try{
+    const r=localStorage.getItem(NOTE_KEY);
+    if(r){const d=JSON.parse(r);notes=d.notes||[];nextNoteId=d.nextNoteId||1;}
+  }catch(e){}
+  // Ensure default note always exists
+  if(!notes.find(n=>n.id===0))notes.unshift({id:0,name:'Notes',content:''});
+  curNoteId=0;
+}
+function saveNotes(){
+  try{localStorage.setItem(NOTE_KEY,JSON.stringify({notes,nextNoteId}));}catch(e){}
+}
+function toggleNotePanel(){
+  const panel=document.getElementById('note-panel');
+  const isOpen=panel.classList.toggle('open');
+  if(isOpen)renderNotePanel();
+}
+function renderNotePanel(){
+  const isSession=document.getElementById('app').style.display==='flex'||document.getElementById('battle').style.display==='flex';
+  // Populate dropdown
+  const sel=document.getElementById('note-sel');
+  const prevId=parseInt(sel.value)||curNoteId;
+  sel.innerHTML=notes.map(n=>`<option value="${n.id}" ${n.id===curNoteId?'selected':''}>${n.name}</option>`).join('');
+  sel.value=curNoteId;
+  // Name row: show only on setup screen for non-default notes
+  const note=notes.find(n=>n.id===curNoteId)||notes[0];
+  const nameRow=document.getElementById('note-name-row');
+  const addRow=document.getElementById('note-add-row');
+  const ta=document.getElementById('note-textarea');
+  const delBtn=document.getElementById('note-del-btn');
+  const nameInp=document.getElementById('note-name-inp');
+  if(isSession){
+    // Session mode: view only for non-default, editable for default
+    nameRow.style.display='none';
+    addRow.style.display='none';
+    ta.value=note.content||'';
+    ta.readOnly=(curNoteId!==0);
+    if(curNoteId===0){
+      ta.removeAttribute('readonly');
+      ta.oninput=()=>{const n=notes.find(x=>x.id===0);if(n){n.content=ta.value;saveNotes();}};
+    } else {
+      ta.setAttribute('readonly','');
+      ta.oninput=null;
+    }
+  } else {
+    // Setup mode: full edit
+    if(curNoteId===0){
+      nameRow.style.display='none'; // default note has no rename/delete
+    } else {
+      nameRow.style.display='flex';
+      nameInp.value=note.name;
+      delBtn.style.display='';
+    }
+    addRow.style.display='flex';
+    ta.removeAttribute('readonly');
+    ta.value=note.content||'';
+    ta.oninput=()=>{const n=notes.find(x=>x.id===curNoteId);if(n){n.content=ta.value;saveNotes();}};
+    // Save name on blur
+    nameInp.onblur=()=>{
+      const n=notes.find(x=>x.id===curNoteId);
+      if(n&&nameInp.value.trim()){n.name=nameInp.value.trim();saveNotes();renderNoteSel();}
+    };
+  }
+}
+function renderNoteSel(){
+  const sel=document.getElementById('note-sel');
+  sel.innerHTML=notes.map(n=>`<option value="${n.id}" ${n.id===curNoteId?'selected':''}>${n.name}</option>`).join('');
+  sel.value=curNoteId;
+}
+function switchNote(){
+  const sel=document.getElementById('note-sel');
+  // Save current textarea content first
+  const cur=notes.find(n=>n.id===curNoteId);
+  if(cur)cur.content=document.getElementById('note-textarea').value;
+  saveNotes();
+  curNoteId=parseInt(sel.value);
+  renderNotePanel();
+}
+function addNote(){
+  const inp=document.getElementById('note-new-name');
+  const name=inp.value.trim();
+  if(!name)return;
+  const id=nextNoteId++;
+  notes.push({id,name,content:''});
+  curNoteId=id;
+  saveNotes();inp.value='';
+  renderNotePanel();
+}
+function deleteNote(){
+  if(curNoteId===0)return; // can't delete default
+  if(!confirm('Delete this note?'))return;
+  notes=notes.filter(n=>n.id!==curNoteId);
+  curNoteId=0;
+  saveNotes();renderNotePanel();
+}
+
+loadNotes();
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+document.getElementById('np-name').addEventListener('keydown',e=>{if(e.key==='Enter')addPC();});
+document.getElementById('np-id').addEventListener('keydown',e=>{if(e.key==='Enter')addPC();});
+renderLibrary();
+</script>
+<!-- ENEMY EDITOR MODAL -->
+<div class="ov" id="ov-enemy" style="z-index:200">
+<div class="mbox" style="max-width:420px">
+  <h2 id="ee-title">ENEMY STATS</h2>
+  <div class="mg">
+    <div class="full"><label>Current HP</label><input type="number" id="ee-hp" min="0"></div>
+    <div><label>Normal Resistance %<span style="color:var(--muted)"> (+less / -more)</span></label><input type="number" id="ee-res" placeholder="0" step="1"></div>
+    <div><label>Stunned Resistance %</label><input type="number" id="ee-sres" placeholder="0" step="1"></div>
+  </div>
+  <hr class="sdiv"><div class="slbl">Stun System</div>
+  <div class="mg">
+    <div><label>Max Stun Meter</label><input type="number" id="ee-smmax" min="0" placeholder="e.g. 100"></div>
+    <div><label>Stun Duration (s)</label><input type="number" id="ee-sdur" min="0" step="0.1" placeholder="e.g. 12"></div>
+  </div>
+  <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:10px">Duration counts down via total cast time logged — same as cooldowns.</div>
+  <div class="ma">
+    <button class="btn btn-y" onclick="saveEnemyEdit()">SAVE</button>
+    <button class="btn btn-gh" onclick="closeOv('ov-enemy')">CANCEL</button>
+  </div>
+</div>
+</div>
+
+<!-- NOTE TOGGLE BUTTON (always visible) -->
+<button id="note-toggle" onclick="toggleNotePanel()">NOTES</button>
+
+<!-- NOTE PANEL -->
+<div id="note-panel">
+  <div class="note-panel-head">
+    <div class="note-panel-title">
+      <span>// NOTES</span>
+      <button class="btn btn-gh btn-xs" onclick="toggleNotePanel()">✕</button>
+    </div>
+    <div class="note-sel-row">
+      <select id="note-sel" onchange="switchNote()"></select>
+    </div>
+  </div>
+  <div class="note-body">
+    <div class="note-name-row" id="note-name-row" style="display:none">
+      <input type="text" id="note-name-inp" placeholder="Note name">
+      <button class="btn btn-r btn-xs" id="note-del-btn" onclick="deleteNote()">DELETE</button>
+    </div>
+    <textarea id="note-textarea" placeholder="Write here…"></textarea>
+  </div>
+  <div class="note-add-row" id="note-add-row">
+    <input type="text" id="note-new-name" placeholder="New note name…">
+    <button class="btn btn-ys btn-sm" onclick="addNote()">+ ADD</button>
+  </div>
+</div>
+
+</body>
+</html>
